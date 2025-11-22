@@ -669,8 +669,8 @@
       display: flex;
       flex-direction: column;
       gap: 3px;
-      max-height: 240px;
-      overflow: auto;
+      max-height: none;
+      overflow: visible;
     }
 
     .custom-list.empty {
@@ -1997,6 +1997,39 @@ function wireTabs() {
         }
 
         card.appendChild(listBox);
+
+        // Per-list scroll toggle (mirrors Rensei sections)
+        const customScrollToggle = document.createElement("div");
+        customScrollToggle.className = "scroll-toggle";
+        const customSquare = document.createElement("div");
+        customSquare.className = "scroll-toggle-square";
+        customSquare.title = "Toggle scroll for this list";
+        const customLabel = document.createElement("span");
+        customLabel.className = "scroll-toggle-label";
+        customLabel.textContent = "scroll";
+        customScrollToggle.appendChild(customSquare);
+        customScrollToggle.appendChild(customLabel);
+
+        const applyCustomScrollState = (enable) => {
+          if (enable) {
+            listBox.style.maxHeight = "60vh";
+            listBox.style.overflowY = "auto";
+            customSquare.classList.add("on");
+          } else {
+            listBox.style.maxHeight = "none";
+            listBox.style.overflowY = "visible";
+            customSquare.classList.remove("on");
+          }
+        };
+        applyCustomScrollState(false);
+
+        customScrollToggle.addEventListener("click", (evt) => {
+          evt.stopPropagation();
+          const enable = !customSquare.classList.contains("on");
+          applyCustomScrollState(enable);
+        });
+
+        card.appendChild(customScrollToggle);
 
         const addRow = document.createElement("div");
         addRow.className = "add-custom-row";
