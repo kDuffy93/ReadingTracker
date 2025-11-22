@@ -1,32 +1,52 @@
-# Rensei Integrated Canon Tracker (v4)
+# Rensei Canon Reading Tracker
 
-Small tweaks over v3:
+Single-page reading tracker for:
 
-- Fix: clicking **Add** on one Rensei item no longer disables all Add buttons.
-- Add: **hover descriptions work in the auto-built Expanded Path** list as well.
-- Keep: global + per-view stats, Expanded Path overlay, Custom Canon multi-lists, synced progress.
+- **Rensei integrated canon** (Jung, Dostoevsky, Machiavelli, Sun Tzu, Japanese strategy & Zen, Buddhist depth texts, thinkers-on-thinking, Tesla/Einstein worldview, etc.)
+- **Custom canons** that you define yourself.
 
-## What changed from v3
+This is **version 5** of the HTML-only app, designed to be dropped into GitHub Pages or opened directly in a browser. All state is stored locally in `localStorage`.
 
-1. **Add button logic**
+## Features
 
-   - We now precompute a `Set` of all IDs that exist in your custom lists.
-   - For each Rensei item we:
-     - **Enable / disable** its own “Add” button based on whether *its* ID is in that set.
-   - This prevents the bug where clicking “Add” once made every button look disabled.
+- Two tabs:
+  - **Rensei Canon** – the curated base path.
+  - **Custom Canons** – arbitrary lists and experiments.
+- Two Rensei layouts:
+  - **Condensed** columns by type (core / secondary / Buddhist & Tao / thinking-about-thinking).
+  - **Grouped by core** – each core work with its wired secondary and tertiary suggestions beneath.
+- **Expanded path overlay** – one long, ordered list built from core → secondary → tertiary mappings. Checkmarks sync with every other view.
+- **Hover tooltips** for all canon items – description plus the internal ID (so you can wire them into your own custom lists).
+- **Add-to-custom buttons** on the Rensei side:
+  - Adds the item into your first custom list.
+  - Button automatically disables when the item already exists in any custom list.
+- Custom canon builder:
+  - Multiple named lists.
+  - Reorder lists (left/right) and items (up/down).
+  - Duplicate items into other lists.
+  - Add completely custom entries that are not part of the Rensei base.
+- **Progress pills** at the top:
+  - Global count, Rensei-only, and custom-only completion.
+  - All completion state is shared across views via the item IDs.
+- **Local-only**:
+  - No network access, APIs, or cookies.
+  - Everything is stored in `localStorage` under three keys:
+    - `renseiCanonProgressV1`
+    - `renseiCustomCanonV2`
+    - `renseiCanonUiV1`
 
-2. **Expanded Path hover tooltips**
+## Usage
 
-   - The Expanded Path section now reuses the same hover behavior:
-     - Title
-     - Description
-     - Canon ID at the bottom
-   - Add buttons are **removed from Expanded Path items** so it stays a clean overview lane.
+1. Open `index.html` directly in a browser, or host the file with GitHub Pages.
+2. Use the **Rensei Canon** tab as a scaffold:
+   - Hover titles to see what they are and copy IDs.
+   - Use **+ Add** to move a book into your first custom list.
+3. Use the **Custom Canons** tab to:
+   - Rename lists (e.g., “Winter 2025 Stack”, “Deep Jung Run”).
+   - Reorder items with ↑/↓ to create precise reading orders.
+   - Add your own entries (e.g., Rensei Papers volumes or new authors).
+4. Progress is automatically persisted. “Reset all progress” only clears completion state, not your custom lists.
 
-3. **Sync & persistence**
+## License
 
-   - Synced progress still works the same:
-     - Any checkboxes sharing the same `data-book-id` toggle together.
-   - Expanded toggle state still persists via `renseiCanonUiV1`.
-
-Everything else (data model, localStorage keys, etc.) is compatible with v3.
+MIT – see `LICENSE`.

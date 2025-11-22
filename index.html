@@ -2,1610 +2,2211 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Rensei Integrated Canon Tracker</title>
+  <title>Rensei Integrated Canon Tracker v5</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg: #0b1020;
-      --bg-elevated: #151b2d;
-      --accent: #6dd3ff;
-      --accent-soft: rgba(109, 211, 255, 0.15);
+      --bg: #05060a;
+      --bg-elevated: #101320;
+      --bg-softer: #181c2a;
+      --accent: #5dd3ff;
+      --accent-soft: rgba(93, 211, 255, 0.12);
+      --accent-strong: #7df5b2;
       --text-main: #f5f7ff;
-      --text-muted: #a0a4c0;
-      --border-subtle: #262c42;
-      --danger: #ff5c7a;
-      --radius-lg: 18px;
-      --radius-sm: 10px;
-      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.45);
+      --text-muted: #a6acc7;
+      --border-subtle: #2b3145;
+      --danger: #ff6b81;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
+      --radius-xl: 18px;
+      --radius-lg: 14px;
+      --radius-pill: 1000px;
+      --transition-fast: 0.16s ease-out;
+      --transition-med: 0.22s ease;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #151b2d 0, #050816 55%);
+      min-height: 100vh;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #202641 0, #05060a 45%);
       color: var(--text-main);
       -webkit-font-smoothing: antialiased;
     }
+
     .app-shell {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
+      max-width: 1150px;
+      margin: 24px auto 40px;
+      padding: 0 16px;
     }
-    header {
+
+    header.app-header {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 18px;
     }
-    header h1 {
-      font-size: 1.7rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      margin: 0;
+
+    .app-title-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-    header h1 span.chip {
-      font-size: 0.65rem;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      text-transform: uppercase;
-    }
-    header p {
-      margin: 0;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      max-width: 720px;
-    }
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
       gap: 10px;
-      margin-top: 10px;
-      align-items: center;
+      flex-wrap: wrap;
     }
-    .pill-button {
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(8, 12, 30, 0.9);
-      color: var(--text-main);
-      padding: 7px 14px;
-      font-size: 0.8rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease,
-        transform 0.08s ease;
-    }
-    .pill-button span.icon { font-size: 1rem; }
-    .pill-button:hover {
-      background: rgba(20, 26, 52, 0.95);
-      border-color: var(--accent);
-      transform: translateY(-1px);
-    }
-    .pill-button.danger {
-      border-color: rgba(255, 92, 122, 0.3);
-      color: #ffd4de;
-    }
-    .pill-button.danger:hover {
-      border-color: var(--danger);
-      background: rgba(255, 92, 122, 0.1);
-    }
-    .progress-chip {
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: rgba(12, 18, 42, 0.9);
-      border: 1px solid var(--border-subtle);
-      font-size: 0.75rem;
-      color: var(--text-muted);
+
+    h1 {
+      font-size: 1.55rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin: 0;
       display: inline-flex;
       align-items: center;
       gap: 8px;
     }
-    .progress-chip span.value {
+
+    h1 span.badge {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(125, 245, 178, 0.4);
+      color: var(--accent-strong);
+      background: rgba(26, 255, 166, 0.04);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .app-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 680px;
+    }
+
+    .app-subtitle strong {
       color: var(--accent);
       font-weight: 600;
     }
-    .view-tabs {
-      display: inline-flex;
-      margin-top: 12px;
-      padding: 3px;
-      border-radius: 999px;
-      background: rgba(8, 12, 30, 0.95);
-      border: 1px solid var(--border-subtle);
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 10px 0 12px;
+      flex-wrap: wrap;
     }
-    .tab-button {
+
+    .tab-buttons {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: var(--radius-pill);
+      background: rgba(9, 11, 21, 0.94);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 0 0 1px rgba(93, 211, 255, 0.08);
+    }
+
+    .tab-btn {
       border: none;
       background: transparent;
       color: var(--text-muted);
-      padding: 6px 10px;
-      font-size: 0.8rem;
+      padding: 7px 14px;
+      font-size: 0.86rem;
       border-radius: 999px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.15s ease, color 0.15s ease;
-    }
-    .tab-button span.icon { font-size: 0.95rem; }
-    .tab-button.active {
-      background: rgba(25, 32, 60, 0.95);
-      color: var(--accent);
-    }
-    .toggle-chip {
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(8, 12, 30, 0.9);
-      color: var(--text-muted);
-      padding: 6px 10px;
-      font-size: 0.75rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      margin-left: auto;
-      transition: background 0.15s ease, border-color 0.15s ease;
-    }
-    .toggle-chip span.icon { font-size: 0.95rem; }
-    .toggle-chip.active {
-      background: rgba(25, 32, 60, 0.95);
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-    main { margin-top: 18px; }
-    .view { display: none; }
-    .view.active { display: block; }
-    .view-sections {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .section-card {
-      background: radial-gradient(circle at top left, var(--accent-soft) 0, var(--bg-elevated) 40%);
-      border-radius: var(--radius-lg);
-      padding: 18px 16px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-      box-shadow: var(--shadow-soft);
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: baseline;
-      margin-bottom: 10px;
-    }
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-title span.tag {
-      font-size: 0.7rem;
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-    .section-subtitle {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-    .section-body {
-      display: grid;
-      gap: 8px;
-    }
-    .list-group-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin: 8px 0 2px;
-    }
-    ul.checklist {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 5px;
-    }
-    .check-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 8px;
-      border-radius: var(--radius-sm);
-      background: rgba(5, 8, 22, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      font-size: 0.85rem;
-    }
-    .check-item input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      margin: 0;
-      cursor: pointer;
-      accent-color: var(--accent);
-    }
-    .check-item label {
-      cursor: pointer;
-      flex: 1;
-    }
-    .badge {
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      color: var(--text-muted);
+      transition: background var(--transition-fast),
+        color var(--transition-fast), transform 0.08s ease-out,
+        box-shadow 0.12s ease-out;
       white-space: nowrap;
     }
-    .mini-btn {
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(10, 14, 32, 0.9);
-      color: var(--text-muted);
+
+    .tab-btn span.dot {
+      width: 6px;
+      height: 6px;
       border-radius: 999px;
-      padding: 2px 7px;
-      font-size: 0.7rem;
-      cursor: pointer;
+      background: var(--border-subtle);
+    }
+
+    .tab-btn.active {
+      background: radial-gradient(circle at top left, #1e334a 0, #151a28 38%);
+      color: var(--text-main);
+      box-shadow: 0 0 0 1px rgba(125, 245, 178, 0.4);
+    }
+
+    .tab-btn.active span.dot {
+      background: var(--accent-strong);
+    }
+
+    .tab-btn:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .tab-aux {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill-toggle {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-    }
-    .mini-btn:hover:not(:disabled) {
-      background: rgba(22, 28, 54, 0.95);
-      color: var(--accent);
-      border-color: rgba(109, 211, 255, 0.4);
-    }
-    .mini-btn:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-    .mini-btn.danger {
-      color: #ffb0c1;
-      border-color: rgba(255, 92, 122, 0.3);
-    }
-    .mini-btn.danger:hover:not(:disabled) {
-      color: #ffe3ea;
-      border-color: var(--danger);
-      background: rgba(255, 92, 122, 0.12);
-    }
-    .custom-controls {
-      display: inline-flex;
-      gap: 4px;
-      margin-left: 4px;
-    }
-    .footer-note {
-      margin-top: 14px;
-      font-size: 0.75rem;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(8, 12, 24, 0.9);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.78rem;
       color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
     }
-    .custom-input-row {
+
+    .pill-toggle input {
+      appearance: none;
+      width: 26px;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(38, 44, 72, 0.9);
+      position: relative;
+      outline: none;
+      margin: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .pill-toggle input::before {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #c4c8ee;
+      top: 2px;
+      left: 3px;
+      transition: transform var(--transition-fast),
+        background var(--transition-fast);
+    }
+
+    .pill-toggle input:checked {
+      background: rgba(125, 245, 178, 0.16);
+    }
+
+    .pill-toggle input:checked::before {
+      transform: translateX(10px);
+      background: var(--accent-strong);
+    }
+
+    button.small-ghost {
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      background: rgba(7, 10, 20, 0.9);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    button.small-ghost span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+    }
+
+    button.small-ghost:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    button.small-ghost.danger {
+      border-color: rgba(255, 107, 129, 0.6);
+      color: #ffc6d0;
+    }
+
+    /* Stats strip */
+    .stats-strip {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 10px;
+      margin: 2px 0 14px;
     }
-    .custom-input-row input[type="text"],
-    .custom-input-row select {
-      padding: 7px 10px;
-      border-radius: 999px;
+
+    .pill-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: var(--radius-pill);
+      padding: 5px 10px;
+      background: rgba(7, 10, 20, 0.92);
       border: 1px solid var(--border-subtle);
-      background: rgba(5, 8, 22, 0.9);
-      color: var(--text-main);
-      font-size: 0.85rem;
-      outline: none;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
     }
-    .custom-input-row input[type="text"] {
-      flex: 1;
-      min-width: 160px;
+
+    .pill-stat strong {
+      color: var(--accent-strong);
+      font-weight: 600;
     }
-    .custom-input-row input[type="text"]::placeholder {
+
+    .pill-stat span.label {
       color: var(--text-muted);
     }
-    .custom-input-row select {
-      min-width: 110px;
+
+    .pill-stat span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-soft);
     }
-    .custom-groups-container {
+
+    main {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
-    .custom-group .section-header {
+
+    .panel {
+      background: radial-gradient(circle at top left, #1b213a 0, #0b0e19 55%);
+      border-radius: 20px;
+      border: 1px solid rgba(79, 88, 126, 0.9);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 14px 16px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-header h2 {
+      font-size: 1.02rem;
+      margin: 0;
+      display: flex;
       align-items: center;
+      gap: 8px;
     }
-    .custom-group-type-tag {
-      font-size: 0.7rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.08);
+
+    .panel-header h2 span.sub {
+      font-size: 0.8rem;
+      font-weight: 400;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
     }
+
+    .panel-header small {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .panel-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .panel-header-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Condensed Rensei layout */
+    .rensei-layout {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .rensei-column {
+      background: rgba(7, 10, 22, 0.85);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(67, 75, 115, 0.95);
+      padding: 10px 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 120px;
+    }
+
+    .rensei-col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+
+    .rensei-col-header h3 {
+      font-size: 0.86rem;
+      margin: 0;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .rensei-col-header span.tag {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Grouped layout */
+    .grouped-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .core-group {
+      background: rgba(7, 10, 22, 0.9);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(67, 75, 115, 0.95);
+      padding: 9px 10px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .core-header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .core-header-row .core-label {
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .core-header-row .core-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .core-subgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .group-column {
+      background: rgba(3, 6, 18, 0.9);
+      border-radius: 12px;
+      border: 1px dashed rgba(70, 77, 118, 0.9);
+      padding: 6px 7px;
+      min-height: 52px;
+    }
+
+    .group-column h4 {
+      margin: 0 0 4px;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    /* Items */
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 2px;
+      border-radius: 8px;
+      transition: background var(--transition-fast), transform 0.08s ease-out;
+    }
+
+    .check-item:hover {
+      background: rgba(29, 150, 196, 0.09);
+      transform: translateY(-0.5px);
+    }
+
+    .check-item.completed {
+      opacity: 0.7;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      border-radius: 4px;
+      border: 1px solid rgba(132, 141, 186, 0.9);
+      background: rgba(7, 10, 22, 0.8);
+      cursor: pointer;
+      appearance: none;
+      position: relative;
+      flex-shrink: 0;
+      margin: 0 0 1px;
+    }
+
+    .check-item input[type="checkbox"]:checked {
+      background: linear-gradient(135deg, #5dd3ff, #7df5b2);
+      border-color: transparent;
+    }
+
+    .check-item input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 3px;
+      background: rgba(4, 7, 16, 0.9);
+      clip-path: polygon(20% 55%, 45% 75%, 80% 25%, 72% 18%, 44% 63%, 27% 48%);
+    }
+
+    .book-mainline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .book-label {
+      font-size: 0.84rem;
+      color: var(--text-main);
+      cursor: default;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .book-label span.id-chip {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 1px 6px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(99, 109, 165, 0.9);
+      color: #cdd4ff;
+      background: rgba(15, 18, 36, 0.9);
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+
+    .book-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    button.add-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(67, 153, 204, 0.9);
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      background: rgba(7, 11, 24, 0.9);
+      color: var(--accent);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    button.add-btn span.plus {
+      font-size: 0.85em;
+      line-height: 1;
+    }
+
+    button.add-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      border-style: dashed;
+    }
+
+    button.icon-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(73, 82, 130, 0.95);
+      background: rgba(4, 6, 14, 0.95);
+      padding: 2px 6px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    button.icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    button.icon-btn.danger {
+      border-color: rgba(255, 107, 129, 0.8);
+      color: #ffc6d0;
+    }
+
+    /* Expanded path list */
+    .expanded-wrapper {
+      margin-top: 10px;
+      border-radius: var(--radius-lg);
+      background: rgba(4, 7, 16, 0.95);
+      border: 1px solid rgba(77, 85, 130, 0.9);
+      padding: 8px 10px;
+    }
+
+    .expanded-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .expanded-header h3 {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .expanded-header h3 span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+    }
+
+    .expanded-list {
+      max-height: 220px;
+      overflow: auto;
+      padding-right: 4px;
+      padding-top: 1px;
+    }
+
+    .expanded-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .expanded-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .expanded-list::-webkit-scrollbar-thumb {
+      background: rgba(84, 93, 138, 0.95);
+      border-radius: 999px;
+    }
+
+    .expanded-list .check-item {
+      padding-inline: 3px;
+    }
+
+    /* Custom Canon */
+    .custom-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .custom-card {
+      background: rgba(7, 10, 23, 0.96);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(73, 82, 130, 0.98);
+      padding: 9px 9px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 90px;
+    }
+
+    .custom-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
+    .custom-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .custom-header-title {
+      font-size: 0.88rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .custom-header-input {
+      background: rgba(5, 8, 20, 0.94);
+      border-radius: 999px;
+      border: 1px solid rgba(84, 93, 140, 0.95);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      min-width: 80px;
+      max-width: 170px;
+    }
+
+    .custom-tools {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .custom-progress {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .custom-list {
+      border-radius: 10px;
+      background: rgba(2, 5, 15, 0.9);
+      border: 1px dashed rgba(73, 82, 130, 0.85);
+      padding: 5px 5px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-height: 240px;
+      overflow: auto;
+    }
+
+    .custom-list.empty {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 4px;
+    }
+
+    .custom-actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      gap: 8px;
+    }
+
+    .custom-actions-row button {
+      font-size: 0.75rem;
+    }
+
+    /* Custom items */
+    .custom-item-meta {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      opacity: 0.85;
+    }
+
+    .custom-item-btns {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .custom-item-btns button.icon-btn {
+      padding-inline: 4px;
+    }
+
+    /* Add custom book */
+    .add-custom-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .add-custom-row input[type="text"] {
+      flex: 1;
+      min-width: 120px;
+      background: rgba(4, 6, 16, 0.95);
+      border-radius: 999px;
+      border: 1px solid rgba(77, 86, 142, 0.95);
+      color: var(--text-main);
+      padding: 5px 8px;
+      font-size: 0.78rem;
+    }
+
+    .add-custom-row input[type="text"]::placeholder {
+      color: #6b729a;
+    }
+
+    /* Tooltip */
     .tooltip {
       position: fixed;
-      max-width: 280px;
-      background: rgba(6, 10, 26, 0.97);
-      border-radius: 12px;
-      border: 1px solid rgba(109, 211, 255, 0.5);
-      padding: 8px 10px 6px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.65);
-      font-size: 0.8rem;
+      max-width: 320px;
+      padding: 8px 9px;
+      border-radius: 10px;
+      background: rgba(3, 6, 15, 0.97);
+      border: 1px solid rgba(105, 116, 178, 0.95);
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.75);
+      font-size: 0.76rem;
+      color: var(--text-main);
       z-index: 9999;
       pointer-events: none;
-      display: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease-out, transform 0.12s ease-out;
     }
+
+    .tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     .tooltip-title {
       font-weight: 600;
       margin-bottom: 4px;
+      font-size: 0.8rem;
     }
+
     .tooltip-body {
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
-    .tooltip-id {
-      text-align: right;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.7rem;
-      color: #7bd6ff;
-    }
-    .hidden { display: none !important; }
 
-    @media (min-width: 768px) {
-      .app-shell { padding: 32px 24px 52px; }
-      header h1 { font-size: 2rem; }
-      .view-sections { gap: 22px; }
+    .tooltip-id {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: #cdd4ff;
+      border-top: 1px solid rgba(59, 68, 120, 0.9);
+      padding-top: 4px;
+      margin-top: 3px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tooltip-id span.label {
+      opacity: 0.7;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 16px;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      opacity: 0.85;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .rensei-layout {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .custom-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        margin-top: 18px;
+      }
+      .tab-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .tab-aux {
+        justify-content: space-between;
+      }
+      .panel {
+        padding-inline: 10px;
+      }
+      .rensei-layout {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
-    <header>
-      <h1>
-        Rensei Integrated Canon
-        <span class="chip">Reading Tracker</span>
-      </h1>
-      <p>
-        Follow the Rensei Canon or build your own custom canon. Check a book anywhere it appears and all copies stay in sync. Everything is stored locally in your browser only.
-      </p>
-      <div class="controls-row">
-        <button type="button" class="pill-button danger" id="resetProgressBtn">
-          <span class="icon">🧹</span>
-          <span>Reset all progress</span>
-        </button>
-        <div class="progress-chip">
-          <span>All books:</span>
-          <span class="value" id="progressCountGlobal">0</span>
-          <span>/</span>
-          <span id="progressTotalGlobal">0</span>
-        </div>
-        <div class="progress-chip">
-          <span>This view:</span>
-          <span class="value" id="progressCountView">0</span>
-          <span>/</span>
-          <span id="progressTotalView">0</span>
-        </div>
-        <div class="view-tabs">
-          <button type="button" class="tab-button active" data-view="rensei">
-            <span class="icon">📚</span>
-            <span>Rensei Canon</span>
-          </button>
-          <button type="button" class="tab-button" data-view="custom">
-            <span class="icon">📝</span>
-            <span>Custom Canon</span>
-          </button>
-        </div>
-        <button type="button" class="toggle-chip" id="toggleExpandedBtn">
-          <span class="icon">⤢</span>
-          <span class="label">Expanded path: off</span>
-        </button>
+    <header class="app-header">
+      <div class="app-title-row">
+        <h1>
+          Rensei Canon
+          <span class="badge">v5 · local only</span>
+        </h1>
       </div>
+      <p class="app-subtitle">
+        A two-lane reading tracker for your
+        <strong>Rensei integrated canon</strong> and your own
+        <strong>custom paths</strong>. Everything stays on this device via
+        <strong>localStorage</strong>.
+      </p>
     </header>
 
+    <div class="tab-bar">
+      <div class="tab-buttons" role="tablist">
+        <button class="tab-btn active" data-tab="rensei" type="button">
+          <span class="dot"></span> Rensei Canon
+        </button>
+        <button class="tab-btn" data-tab="custom" type="button">
+          <span class="dot"></span> Custom Canons
+        </button>
+      </div>
+      <div class="tab-aux">
+        <label class="pill-toggle">
+          <input id="viewModeToggle" type="checkbox" />
+          <span>Grouped by core (Rensei)</span>
+        </label>
+        <label class="pill-toggle">
+          <input id="expandedToggle" type="checkbox" checked />
+          <span>Show expanded path overlay</span>
+        </label>
+        <button id="clearProgressBtn" class="small-ghost danger" type="button">
+          <span class="dot"></span> Reset all progress
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-strip">
+      <div class="pill-stat">
+        <span class="dot"></span>
+        <span class="label">Global:</span>
+        <strong><span id="statGlobalCompleted">0</span>/<span
+            id="statGlobalTotal"
+            >0</span
+          ></strong>
+        <span>completed</span>
+      </div>
+      <div class="pill-stat">
+        <span class="dot"></span>
+        <span class="label">Rensei view:</span>
+        <strong><span id="statRenseiCompleted">0</span>/<span
+            id="statRenseiTotal"
+            >0</span
+          ></strong>
+      </div>
+      <div class="pill-stat">
+        <span class="dot"></span>
+        <span class="label">Custom view:</span>
+        <strong><span id="statCustomCompleted">0</span>/<span
+            id="statCustomTotal"
+            >0</span
+          ></strong>
+      </div>
+    </div>
+
     <main>
-      <!-- Rensei Canon View -->
-      <div class="view active" id="renseiView">
-        <div class="view-sections">
-          <!-- Expanded combined path (only visible when expanded) -->
-          <section class="section-card hidden" id="expandedPathSection">
-            <div class="section-header">
-              <div>
-                <div class="section-title">
-                  Expanded Path (Auto-built)
-                  <span class="tag">Core + Layers</span>
-                </div>
-                <div class="section-subtitle">
-                  A single combined path built from the core plus the other Rensei sections. Optional overlay; the lists below still show everything by category.
-                </div>
-              </div>
-            </div>
-            <div class="section-body">
-              <ul class="checklist" id="expandedPathList">
-                <!-- auto-generated -->
-              </ul>
-            </div>
-          </section>
-
-          <!-- Core Canon -->
-          <section class="section-card" data-section-type="core">
-            <div class="section-header">
-              <div>
-                <div class="section-title">
-                  Core Canon
-                  <span class="tag">Main Trunk</span>
-                </div>
-                <div class="section-subtitle">
-                  Start here. These are the primary works; everything else is optional expansion.
-                </div>
-              </div>
-            </div>
-            <div class="section-body">
-              <ul class="checklist">
-                <li class="check-item">
-                  <input type="checkbox" id="core-jung-mhis" data-book-id="jung-man-and-his-symbols" />
-                  <label for="core-jung-mhis">Carl Jung – Man and His Symbols</label>
-                  <span class="badge">Psychology</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-frankl-msfm" data-book-id="frankl-mans-search-for-meaning" />
-                  <label for="core-frankl-msfm">Viktor Frankl – Man’s Search for Meaning</label>
-                  <span class="badge">Meaning</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-dost-notes" data-book-id="dostoevsky-notes-from-underground" />
-                  <label for="core-dost-notes">Fyodor Dostoevsky – Notes from Underground</label>
-                  <span class="badge">Literature</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-dost-cp" data-book-id="dostoevsky-crime-and-punishment" />
-                  <label for="core-dost-cp">Fyodor Dostoevsky – Crime and Punishment</label>
-                  <span class="badge">Literature</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-fromm-eff" data-book-id="fromm-escape-from-freedom" />
-                  <label for="core-fromm-eff">Erich Fromm – Escape from Freedom</label>
-                  <span class="badge">Psycho-social</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-nietzsche-bge" data-book-id="nietzsche-beyond-good-and-evil" />
-                  <label for="core-nietzsche-bge">Friedrich Nietzsche – Beyond Good and Evil</label>
-                  <span class="badge">Philosophy</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-camus-mos" data-book-id="camus-myth-of-sisyphus" />
-                  <label for="core-camus-mos">Albert Camus – The Myth of Sisyphus</label>
-                  <span class="badge">Existential</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-kierkegaard-sud" data-book-id="kierkegaard-sickness-unto-death" />
-                  <label for="core-kierkegaard-sud">Søren Kierkegaard – The Sickness Unto Death</label>
-                  <span class="badge">Existential</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-arendt-hc" data-book-id="arendt-human-condition" />
-                  <label for="core-arendt-hc">Hannah Arendt – The Human Condition</label>
-                  <span class="badge">Political</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-suntzu-aow" data-book-id="sun-tzu-art-of-war" />
-                  <label for="core-suntzu-aow">Sun Tzu – The Art of War</label>
-                  <span class="badge">Strategy</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-musashi-bofr" data-book-id="musashi-book-of-five-rings" />
-                  <label for="core-musashi-bofr">Miyamoto Musashi – The Book of Five Rings</label>
-                  <span class="badge">Strategy</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-takuan-ufm" data-book-id="takuan-unfettered-mind" />
-                  <label for="core-takuan-ufm">Takuan Soho – The Unfettered Mind</label>
-                  <span class="badge">Zen / Mind</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-machiavelli-prince" data-book-id="machiavelli-the-prince" />
-                  <label for="core-machiavelli-prince">Niccolò Machiavelli – The Prince</label>
-                  <span class="badge">Power</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-marcus-med" data-book-id="marcus-aurelius-meditations" />
-                  <label for="core-marcus-med">Marcus Aurelius – Meditations</label>
-                  <span class="badge">Stoicism</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-tsunetomo-hagakure" data-book-id="tsunetomo-hagakure" />
-                  <label for="core-tsunetomo-hagakure">Yamamoto Tsunetomo – Hagakure</label>
-                  <span class="badge">Samurai</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-tnh-miracle" data-book-id="thich-nhat-hanh-miracle-of-mindfulness" />
-                  <label for="core-tnh-miracle">Thich Nhat Hanh – The Miracle of Mindfulness</label>
-                  <span class="badge">Buddhist Core</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-dhammapada" data-book-id="text-dhammapada" />
-                  <label for="core-dhammapada">The Dhammapada</label>
-                  <span class="badge">Buddhist Core</span>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="core-watts-woi" data-book-id="alan-watts-wisdom-of-insecurity" />
-                  <label for="core-watts-woi">Alan Watts – The Wisdom of Insecurity</label>
-                  <span class="badge">Bridge East/West</span>
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <!-- Secondary Canon -->
-          <section class="section-card" data-section-type="secondary">
-            <div class="section-header">
-              <div>
-                <div class="section-title">
-                  Secondary Canon
-                  <span class="tag">Layer 2</span>
-                </div>
-                <div class="section-subtitle">
-                  Long-term list to chip away at after (or alongside) the core.
-                </div>
-              </div>
-            </div>
-            <div class="section-body">
-              <ul class="checklist">
-                <li class="check-item">
-                  <input type="checkbox" id="sec-jung-mmis" data-book-id="jung-modern-man-in-search-of-a-soul" />
-                  <label for="sec-jung-mmis">Jung – Modern Man in Search of a Soul</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-campbell-hero" data-book-id="campbell-hero-with-a-thousand-faces" />
-                  <label for="sec-campbell-hero">Joseph Campbell – The Hero with a Thousand Faces</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-hesse-steppenwolf" data-book-id="hesse-steppenwolf" />
-                  <label for="sec-hesse-steppenwolf">Hermann Hesse – Steppenwolf</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-rilke-letters" data-book-id="rilke-letters-to-a-young-poet" />
-                  <label for="sec-rilke-letters">Rainer Maria Rilke – Letters to a Young Poet</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-weber-protestant" data-book-id="weber-protestant-ethic" />
-                  <label for="sec-weber-protestant">Max Weber – The Protestant Ethic and the Spirit of Capitalism</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-arendt-bpf" data-book-id="arendt-between-past-and-future" />
-                  <label for="sec-arendt-bpf">Hannah Arendt – Between Past and Future</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-fromm-art-of-loving" data-book-id="fromm-art-of-loving" />
-                  <label for="sec-fromm-art-of-loving">Erich Fromm – The Art of Loving</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-seneca-letters" data-book-id="seneca-letters-from-a-stoic" />
-                  <label for="sec-seneca-letters">Seneca – Letters from a Stoic</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-epictetus-enchiridion" data-book-id="epictetus-enchiridion" />
-                  <label for="sec-epictetus-enchiridion">Epictetus – Enchiridion</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-suzuki-zmbm" data-book-id="shunryu-suzuki-zen-mind-beginner-mind" />
-                  <label for="sec-suzuki-zmbm">Shunryu Suzuki – Zen Mind, Beginner’s Mind</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-tnh-peace" data-book-id="thich-nhat-hanh-peace-is-every-step" />
-                  <label for="sec-tnh-peace">Thich Nhat Hanh – Peace Is Every Step</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-bodhi-words" data-book-id="bhikkhu-bodhi-in-the-buddhas-words" />
-                  <label for="sec-bodhi-words">Bhikkhu Bodhi – In the Buddha’s Words</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-kornfield-path" data-book-id="jack-kornfield-path-with-heart" />
-                  <label for="sec-kornfield-path">Jack Kornfield – A Path with Heart</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-watts-way-of-zen" data-book-id="alan-watts-way-of-zen" />
-                  <label for="sec-watts-way-of-zen">Alan Watts – The Way of Zen</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="sec-botton-consolations" data-book-id="alain-de-botton-consolations-of-philosophy" />
-                  <label for="sec-botton-consolations">Alain de Botton – The Consolations of Philosophy</label>
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <!-- Buddhist Canon -->
-          <section class="section-card" data-section-type="buddhist">
-            <div class="section-header">
-              <div>
-                <div class="section-title">
-                  Buddhist Canon
-                  <span class="tag">Standalone</span>
-                </div>
-                <div class="section-subtitle">
-                  Read as its own path or as stabilizers between heavier works.
-                </div>
-              </div>
-            </div>
-            <div class="section-body">
-              <div class="list-group-label">Core</div>
-              <ul class="checklist">
-                <li class="check-item">
-                  <input type="checkbox" id="budd-core-dhammapada" data-book-id="text-dhammapada" />
-                  <label for="budd-core-dhammapada">The Dhammapada</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="budd-core-tnh-miracle" data-book-id="thich-nhat-hanh-miracle-of-mindfulness" />
-                  <label for="budd-core-tnh-miracle">Thich Nhat Hanh – The Miracle of Mindfulness</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="budd-core-bodhi-words" data-book-id="bhikkhu-bodhi-in-the-buddhas-words" />
-                  <label for="budd-core-bodhi-words">Bhikkhu Bodhi – In the Buddha’s Words</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="budd-core-watts-woi" data-book-id="alan-watts-wisdom-of-insecurity" />
-                  <label for="budd-core-watts-woi">Alan Watts – The Wisdom of Insecurity</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="budd-core-pema-wtfp" data-book-id="pema-when-things-fall-apart" />
-                  <label for="budd-core-pema-wtfp">Pema Chödrön – When Things Fall Apart</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="budd-core-shinzen-science" data-book-id="shinzen-science-of-enlightenment" />
-                  <label for="budd-core-shinzen-science">Shinzen Young – The Science of Enlightenment</label>
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <!-- Thinkers on Thinking -->
-          <section class="section-card" data-section-type="thinking">
-            <div class="section-header">
-              <div>
-                <div class="section-title">
-                  Thinkers on Thinking Itself
-                  <span class="tag">Innovation & Insight</span>
-                </div>
-                <div class="section-subtitle">
-                  Focused on creativity, intuition, problem-solving, and mental models.
-                </div>
-              </div>
-            </div>
-            <div class="section-body">
-              <ul class="checklist">
-                <li class="check-item">
-                  <input type="checkbox" id="think-einstein-ideas" data-book-id="einstein-ideas-and-opinions" />
-                  <label for="think-einstein-ideas">Albert Einstein – Ideas and Opinions (selected essays)</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-tesla-myinv" data-book-id="tesla-my-inventions" />
-                  <label for="think-tesla-myinv">Nikola Tesla – My Inventions</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-feynman-pleasure" data-book-id="feynman-pleasure-of-finding-things-out" />
-                  <label for="think-feynman-pleasure">Richard Feynman – The Pleasure of Finding Things Out</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-feynman-joking" data-book-id="feynman-surely-youre-joking" />
-                  <label for="think-feynman-joking">Richard Feynman – Surely You're Joking, Mr. Feynman!</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-poincare-science" data-book-id="poincare-science-and-method" />
-                  <label for="think-poincare-science">Henri Poincaré – Science and Method (creativity chapters)</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-hadamard-psych" data-book-id="hadamard-psychology-of-invention" />
-                  <label for="think-hadamard-psych">Jacques Hadamard – The Psychology of Invention in the Mathematical Field</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-polya-howto" data-book-id="polya-how-to-solve-it" />
-                  <label for="think-polya-howto">George Pólya – How to Solve It</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-dewey-howwe" data-book-id="dewey-how-we-think" />
-                  <label for="think-dewey-howwe">John Dewey – How We Think</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-simon-sciences" data-book-id="herbert-simon-sciences-of-the-artificial" />
-                  <label for="think-simon-sciences">Herbert Simon – The Sciences of the Artificial (selected)</label>
-                </li>
-                <li class="check-item">
-                  <input type="checkbox" id="think-kahneman-tfs" data-book-id="kahneman-thinking-fast-and-slow" />
-                  <label for="think-kahneman-tfs">Daniel Kahneman – Thinking, Fast and Slow</label>
-                </li>
-              </ul>
-            </div>
-          </section>
+      <section
+        id="tab-rensei"
+        class="panel"
+        role="tabpanel"
+        aria-label="Rensei Canon"
+      >
+        <div class="panel-header">
+          <div>
+            <h2>
+              Core &amp; expanded canon
+              <span class="sub">Jung → Dostoevsky → Sun Tzu → Machiavelli → Buddhist &amp; meta-thinking</span>
+            </h2>
+            <small
+              >Hover any title for a description + ID. Click
+              <strong>+</strong> to add into a custom path.</small
+            >
+          </div>
+          <div class="panel-header-right">
+            <div class="panel-header-label" id="renseiViewLabel"></div>
+          </div>
         </div>
-      </div>
 
-      <!-- Custom Canon View -->
-      <div class="view" id="customView">
-        <div class="view-sections">
-          <section class="section-card">
-            <div class="section-header">
-              <div>
-                <div class="section-title">
-                  Custom Canon
-                  <span class="tag">Your Structure</span>
-                </div>
-                <div class="section-subtitle">
-                  Build your own layered reading order. Use lists for Core, Secondary, Tertiary, or anything you want.
-                </div>
-              </div>
-            </div>
-            <div class="section-body">
-              <div class="custom-input-row">
-                <input type="text" id="newGroupTitleInput" placeholder="New list title (e.g., My Core Path)" />
-                <select id="newGroupTypeSelect">
-                  <option value="core">Core</option>
-                  <option value="secondary">Secondary</option>
-                  <option value="tertiary">Tertiary</option>
-                  <option value="other">Other</option>
-                </select>
-                <button type="button" class="pill-button" id="addGroupBtn">
-                  <span class="icon">📂</span>
-                  <span>Add list</span>
-                </button>
-              </div>
-              <div class="list-group-label">
-                Your lists
-              </div>
-              <div class="custom-groups-container" id="customGroupsContainer">
-                <!-- groups are rendered here -->
-              </div>
-            </div>
-          </section>
+        <div id="renseiCondensed" class="rensei-layout"></div>
+        <div id="renseiGrouped" class="grouped-layout" style="display: none"></div>
+
+        <div id="expandedWrapper" class="expanded-wrapper">
+          <div class="expanded-header">
+            <h3>
+              <span class="dot"></span>
+              Expanded reading path overview
+            </h3>
+            <small
+              >Built from core → secondary → tertiary mappings. Checkboxes stay
+              in sync with everything above.</small
+            >
+          </div>
+          <div id="expandedList" class="expanded-list"></div>
         </div>
-      </div>
+      </section>
+
+      <section
+        id="tab-custom"
+        class="panel"
+        role="tabpanel"
+        aria-label="Custom Canons"
+        style="display: none"
+      >
+        <div class="panel-header">
+          <div>
+            <h2>
+              Custom canon builder
+              <span class="sub">Your own stacks &amp; experimental paths</span>
+            </h2>
+            <small
+              >Create named lists, drag the order with ↑/↓, and mix your
+              Rensei items with your own entries.</small
+            >
+          </div>
+          <div class="panel-header-right">
+            <button id="addListBtn" class="small-ghost" type="button">
+              <span class="dot"></span> New list
+            </button>
+          </div>
+        </div>
+
+        <div id="customLayout" class="custom-layout"></div>
+      </section>
     </main>
 
-    <div class="footer-note">
-      Tip: if you want a custom item to sync with a Rensei Canon book, give it the same
-      <code>ID</code> (shown in the hover popup). Adding from the Rensei list will do this automatically as long as it is not already in one of your lists.
+    <footer>
+      <div>
+        Rensei Canon Tracker v5 · MIT Licensed · Data stored in
+        <code>localStorage</code> only.
+      </div>
+      <div>
+        GitHub:
+        <a href="https://github.com/kDuffy93/ReadingTracker" target="_blank"
+          >kDuffy93/ReadingTracker</a
+        >
+      </div>
+    </footer>
+  </div>
+
+  <div id="tooltip" class="tooltip" role="status" aria-hidden="true">
+    <div class="tooltip-title"></div>
+    <div class="tooltip-body"></div>
+    <div class="tooltip-id">
+      <span class="label">ID</span>
+      <span class="value"></span>
     </div>
   </div>
 
-  <div id="hoverTooltip" class="tooltip">
-    <div class="tooltip-title"></div>
-    <div class="tooltip-body"></div>
-    <div class="tooltip-id"></div>
-  </div>
-
   <script>
-    (function () {
-      const STORAGE_PROGRESS_KEY = "renseiCanonProgressV1";
-      const STORAGE_CUSTOM_KEY = "renseiCustomCanonV2"; // groups model
-      const STORAGE_UI_KEY = "renseiCanonUiV1";
+    // --- Canon data ---------------------------------------------------------
 
-      const resetBtn = document.getElementById("resetProgressBtn");
-      const progressCountGlobalEl = document.getElementById("progressCountGlobal");
-      const progressTotalGlobalEl = document.getElementById("progressTotalGlobal");
-      const progressCountViewEl = document.getElementById("progressCountView");
-      const progressTotalViewEl = document.getElementById("progressTotalView");
-      const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
-      const toggleExpandedBtn = document.getElementById("toggleExpandedBtn");
-      const renseiView = document.getElementById("renseiView");
-      const customView = document.getElementById("customView");
-      const tooltipEl = document.getElementById("hoverTooltip");
-      const tooltipTitleEl = tooltipEl.querySelector(".tooltip-title");
-      const tooltipBodyEl = tooltipEl.querySelector(".tooltip-body");
-      const tooltipIdEl = tooltipEl.querySelector(".tooltip-id");
-      const expandedPathSection = document.getElementById("expandedPathSection");
-      const expandedPathList = document.getElementById("expandedPathList");
+    const CANON_BOOKS = [
+      // Core canon
+      {
+        id: "jung-psychological-types",
+        title: "C. G. Jung · Psychological Types",
+        tier: "core",
+        group: "core",
+        order: 1,
+      },
+      {
+        id: "jung-modern-man-in-search-of-soul",
+        title: "C. G. Jung · Modern Man in Search of a Soul",
+        tier: "core",
+        group: "core",
+        order: 2,
+      },
+      {
+        id: "dostoevsky-notes-from-underground",
+        title: "Fyodor Dostoevsky · Notes from Underground",
+        tier: "core",
+        group: "core",
+        order: 3,
+      },
+      {
+        id: "dostoevsky-brothers-karamazov",
+        title: "Fyodor Dostoevsky · The Brothers Karamazov",
+        tier: "core",
+        group: "core",
+        order: 4,
+      },
+      {
+        id: "mach-prince",
+        title: "Niccolò Machiavelli · The Prince",
+        tier: "core",
+        group: "core",
+        order: 5,
+      },
+      {
+        id: "sun-tzu-art-of-war",
+        title: "Sun Tzu · The Art of War",
+        tier: "core",
+        group: "core",
+        order: 6,
+      },
+      {
+        id: "miyamoto-musashi-five-rings",
+        title: "Miyamoto Musashi · The Book of Five Rings",
+        tier: "core",
+        group: "core",
+        order: 7,
+      },
+      {
+        id: "dogen-shobogenzo-selected",
+        title: "Dogen · Shobogenzo (selected fascicles)",
+        tier: "core",
+        group: "buddhist",
+        order: 8,
+      },
+      {
+        id: "nagajuna-mulamadhyamakakarika",
+        title: "Nagarjuna · Fundamental Verses of the Middle Way",
+        tier: "core",
+        group: "buddhist",
+        order: 9,
+      },
+      {
+        id: "kakuzo-book-of-tea",
+        title: "Kakuzō Okakura · The Book of Tea",
+        tier: "core",
+        group: "japanese",
+        order: 10,
+      },
+      {
+        id: "einstein-my-worldview",
+        title: "Albert Einstein · Ideas and Opinions (worldview essays)",
+        tier: "core",
+        group: "thinking",
+        order: 11,
+      },
+      {
+        id: "tesla-my-inventions",
+        title: "Nikola Tesla · My Inventions",
+        tier: "core",
+        group: "thinking",
+        order: 12,
+      },
 
-      const newGroupTitleInput = document.getElementById("newGroupTitleInput");
-      const newGroupTypeSelect = document.getElementById("newGroupTypeSelect");
-      const addGroupBtn = document.getElementById("addGroupBtn");
-      const customGroupsContainer = document.getElementById("customGroupsContainer");
+      // Secondary canon: Jung
+      {
+        id: "jung-man-and-his-symbols",
+        title: "C. G. Jung · Man and His Symbols",
+        tier: "secondary",
+        group: "core",
+        order: 101,
+        coreParentId: "jung-psychological-types",
+      },
+      {
+        id: "jung-archetypes-collective-unconscious",
+        title: "C. G. Jung · The Archetypes and the Collective Unconscious",
+        tier: "secondary",
+        group: "core",
+        order: 102,
+        coreParentId: "jung-psychological-types",
+      },
+      // Secondary canon: Dostoevsky
+      {
+        id: "dostoevsky-crime-and-punishment",
+        title: "Fyodor Dostoevsky · Crime and Punishment",
+        tier: "secondary",
+        group: "core",
+        order: 110,
+        coreParentId: "dostoevsky-notes-from-underground",
+      },
+      {
+        id: "dostoevsky-demons",
+        title: "Fyodor Dostoevsky · Demons (The Possessed)",
+        tier: "secondary",
+        group: "core",
+        order: 111,
+        coreParentId: "dostoevsky-brothers-karamazov",
+      },
+      // Secondary canon: strategy / political
+      {
+        id: "han-feizi-basic-writings",
+        title: "Han Feizi · Basic Writings",
+        tier: "secondary",
+        group: "strategy",
+        order: 120,
+        coreParentId: "sun-tzu-art-of-war",
+      },
+      {
+        id: "clausewitz-on-war-selected",
+        title: "Carl von Clausewitz · On War (selected chapters)",
+        tier: "secondary",
+        group: "strategy",
+        order: 121,
+        coreParentId: "sun-tzu-art-of-war",
+      },
+      {
+        id: "mach-discourses",
+        title: "Niccolò Machiavelli · Discourses on Livy",
+        tier: "secondary",
+        group: "core",
+        order: 122,
+        coreParentId: "mach-prince",
+      },
+      // Secondary canon: Buddhist / Japanese
+      {
+        id: "zen-mind-beginners-mind",
+        title: "Shunryu Suzuki · Zen Mind, Beginner's Mind",
+        tier: "secondary",
+        group: "buddhist",
+        order: 130,
+        coreParentId: "dogen-shobogenzo-selected",
+      },
+      {
+        id: "hakuin-zen-teachings",
+        title: "Hakuin Ekaku · Selected Zen Teachings",
+        tier: "secondary",
+        group: "buddhist",
+        order: 131,
+        coreParentId: "dogen-shobogenzo-selected",
+      },
+      {
+        id: "yamamoto-hagakure",
+        title: "Yamamoto Tsunetomo · Hagakure",
+        tier: "secondary",
+        group: "japanese",
+        order: 132,
+        coreParentId: "miyamoto-musashi-five-rings",
+      },
+      // Secondary: thinking about thinking
+      {
+        id: "polya-how-to-solve-it",
+        title: "George Pólya · How to Solve It",
+        tier: "secondary",
+        group: "thinking",
+        order: 140,
+        coreParentId: "einstein-my-worldview",
+      },
+      {
+        id: "dennett-intuition-pumps",
+        title: "Daniel Dennett · Intuition Pumps and Other Tools for Thinking",
+        tier: "secondary",
+        group: "thinking",
+        order: 141,
+        coreParentId: "einstein-my-worldview",
+      },
 
-      const DESCRIPTIONS = {
-        "jung-man-and-his-symbols":
-          "Jung in plain language on dreams, symbols, and how the unconscious talks to you.",
-        "frankl-mans-search-for-meaning":
-          "Logotherapy and the question of meaning under extreme suffering, framed through Frankl’s camp experience.",
-        "dostoevsky-notes-from-underground":
-          "A spiteful narrator dismantling rational-ego models and exposing wounded pride and resentment.",
-        "dostoevsky-crime-and-punishment":
-          "A murder, an idea about greatness, and the slow crushing weight of conscience and redemption.",
-        "fromm-escape-from-freedom":
-          "Why modern people run from real freedom into conformity, authority, or destructiveness.",
-        "nietzsche-beyond-good-and-evil":
-          "Nietzsche tearing apart inherited morals and asking what lies behind our values.",
-        "camus-myth-of-sisyphus":
-          "Absurdity, suicide, and why continuing to live can be an act of defiant meaning-making.",
-        "kierkegaard-sickness-unto-death":
-          "A deep dive into despair as a misalignment of self, faith, and the infinite.",
-        "arendt-human-condition":
-          "Action, labor, and work in the modern world; what it means to appear and act in public.",
-        "sun-tzu-art-of-war":
-          "Compact principles of strategy and deception in conflict that generalize far beyond war.",
-        "musashi-book-of-five-rings":
-          "A swordsman’s distilled notes on timing, stance, and mindset in life-and-death combat.",
-        "takuan-unfettered-mind":
-          "Zen letters to a swordsman on non-attachment, attention, and letting the mind move freely.",
-        "machiavelli-the-prince":
-          "Cold analysis of power: how rulers actually behave when survival is at stake.",
-        "marcus-aurelius-meditations":
-          "A Roman emperor’s private Stoic journal on control, duty, and staying decent in chaos.",
-        "tsunetomo-hagakure":
-          "Samurai reflections on death, loyalty, and decisive action; romanticized but sharp about commitment.",
-        "thich-nhat-hanh-miracle-of-mindfulness":
-          "Gentle, practical training in moment-to-moment awareness in daily life.",
-        "text-dhammapada":
-          "Canonical verses summarizing core Buddhist ethics, mind-training, and wisdom.",
-        "alan-watts-wisdom-of-insecurity":
-          "How clinging to psychological security creates anxiety, and what it means to rest in the present.",
-        "jung-modern-man-in-search-of-a-soul":
-          "Essays detailing Jung’s approach to analysis, dreams, and the modern psyche.",
-        "campbell-hero-with-a-thousand-faces":
-          "The monomyth pattern behind myths and stories across cultures.",
-        "hesse-steppenwolf":
-          "An internal war between bourgeois respectability and wild, fragmented inner life.",
-        "rilke-letters-to-a-young-poet":
-          "Letters on art, solitude, and becoming yourself, written to an aspiring poet.",
-        "weber-protestant-ethic":
-          "How religious ideas helped shape modern capitalism and the work ethic.",
-        "arendt-between-past-and-future":
-          "Key political essays on authority, freedom, and thinking in dark times.",
-        "fromm-art-of-loving":
-          "Love treated as a skillful practice, not just a feeling or accident.",
-        "seneca-letters-from-a-stoic":
-          "Stoic advice on anger, time, wealth, and tranquility in letter form.",
-        "epictetus-enchiridion":
-          "A compact manual on focusing on what you can control and letting go of the rest.",
-        "shunryu-suzuki-zen-mind-beginner-mind":
-          "Short talks on Zen practice and keeping a fresh, non-grasping mind.",
-        "thich-nhat-hanh-peace-is-every-step":
-          "Mindfulness practices woven into walking, breathing, and daily life encounters.",
-        "bhikkhu-bodhi-in-the-buddhas-words":
-          "Organized translations of key Buddha discourses with commentary.",
-        "jack-kornfield-path-with-heart":
-          "Integrating meditation, therapy, and messy human life on a long-term spiritual path.",
-        "alan-watts-way-of-zen":
-          "History and flavor of Zen with Watts’ playful, sharp commentary.",
-        "alain-de-botton-consolations-of-philosophy":
-          "How classic philosophers can soothe everyday modern pains.",
-        "pema-when-things-fall-apart":
-          "How to work with fear, heartbreak, and uncertainty in a Buddhist frame.",
-        "shinzen-science-of-enlightenment":
-          "A technical but accessible breakdown of meditation mechanics and altered states.",
-        "einstein-ideas-and-opinions":
-          "Einstein’s essays on science, politics, and the creative process.",
-        "tesla-my-inventions":
-          "Tesla’s autobiographical sketch of how his mind works and how his ideas came.",
-        "feynman-pleasure-of-finding-things-out":
-          "Talks and interviews about curiosity, doubt, and the joy of discovery.",
-        "feynman-surely-youre-joking":
-          "Anecdotes revealing Feynman’s playful, rule-bending way of thinking.",
-        "poincare-science-and-method":
-          "Reflections on mathematical creativity and the role of the unconscious.",
-        "hadamard-psychology-of-invention":
-          "Classic study of how mathematicians actually experience insight.",
-        "polya-how-to-solve-it":
-          "General toolkit for attacking problems systematically and creatively.",
-        "dewey-how-we-think":
-          "Early cognitive science: how reflective thought and inquiry actually unfold.",
-        "herbert-simon-sciences-of-the-artificial":
-          "Design and complex systems; how we create and reason about artifacts.",
-        "kahneman-thinking-fast-and-slow":
-          "Two-system model of thought, biases, and why intuition fails or succeeds."
+      // Tertiary canon
+      {
+        id: "jung-red-book-selected",
+        title: "C. G. Jung · The Red Book (selected passages)",
+        tier: "tertiary",
+        group: "core",
+        order: 201,
+        coreParentId: "jung-psychological-types",
+        secondaryParentId: "jung-archetypes-collective-unconscious",
+      },
+      {
+        id: "nietzsche-genealogy-of-morals",
+        title: "Friedrich Nietzsche · On the Genealogy of Morals",
+        tier: "tertiary",
+        group: "core",
+        order: 202,
+        coreParentId: "dostoevsky-notes-from-underground",
+      },
+      {
+        id: "laozi-tao-te-ching",
+        title: "Laozi · Tao Te Ching",
+        tier: "tertiary",
+        group: "buddhist",
+        order: 210,
+        coreParentId: "nagajuna-mulamadhyamakakarika",
+      },
+      {
+        id: "mencius",
+        title: "Mencius · Selected Dialogues",
+        tier: "tertiary",
+        group: "strategy",
+        order: 211,
+        coreParentId: "sun-tzu-art-of-war",
+      },
+      {
+        id: "csikszentmihalyi-flow",
+        title: "Mihaly Csikszentmihalyi · Flow",
+        tier: "tertiary",
+        group: "thinking",
+        order: 220,
+        coreParentId: "einstein-my-worldview",
+      },
+      {
+        id: "taleb-antifragile",
+        title: "Nassim Nicholas Taleb · Antifragile",
+        tier: "tertiary",
+        group: "thinking",
+        order: 221,
+        coreParentId: "tesla-my-inventions",
+      },
+    ];
+
+    const DESCRIPTIONS = {
+      "jung-psychological-types":
+        "Jung's typology baseline. Sets up introversion/extraversion, rational vs. irrational functions – the backbone for later MBTI-style thinking.",
+      "jung-modern-man-in-search-of-soul":
+        "Shorter essays showing Jung wrestling with modern alienation, religion, and therapy. Good bridge between dense theory and lived experience.",
+      "dostoevsky-notes-from-underground":
+        "Hyper-self-aware narrator, resentment, and self-sabotage. Great for seeing how pathological inner monologues actually feel from the inside.",
+      "dostoevsky-brothers-karamazov":
+        "Big canvas for morality, faith, doubt, and family dynamics. Combines philosophy, psychology, and messy human behavior in one long arc.",
+      "mach-prince":
+        "Compressed realism about power, perception, and calculated cruelty. Important to read with nuance rather than as a how-to manual.",
+      "sun-tzu-art-of-war":
+        "Strategy as pattern recognition: positioning, timing, and winning before the fight. Useful beyond warfare when read metaphorically.",
+      "miyamoto-musashi-five-rings":
+        "A swordsman's mental OS: emptiness, timing, and the unity of practice and mindset. Good counterpoint to Sun Tzu and Machiavelli.",
+      "dogen-shobogenzo-selected":
+        "Zen metaphysics in dense, poetic form – identity, time, practice. Tough but rewarding once your attention bandwidth is higher.",
+      "nagajuna-mulamadhyamakakarika":
+        "Deep dive into emptiness and dependent origination. Abstract, but a core pillar if you want the full Buddhist structural model.",
+      "kakuzo-book-of-tea":
+        "Aesthetics, simplicity, and everyday ritual as philosophy. Softens the harder texts and grounds them in lived detail.",
+      "einstein-my-worldview":
+        "Worldview essays from a working scientist: humility, curiosity, and ethics. Short, clear pieces on how to think and live.",
+      "tesla-my-inventions":
+        "First-person account of Tesla's mind, intuition, and obsessive focus. A peek at a highly non-standard, pattern-driven brain.",
+      "jung-man-and-his-symbols":
+        "A more accessible Jung primer, full of images and concrete examples of how symbols show up in dreams and culture.",
+      "jung-archetypes-collective-unconscious":
+        "Deeper technical essays on archetypes and the collective layer of psyche. Denser but central for the full Jungian picture.",
+      "dostoevsky-crime-and-punishment":
+        "Moral injury, guilt, and rationalizations under stress. Extends the Underground Man themes into crime, fever, and redemption.",
+      "dostoevsky-demons":
+        "Political fanaticism as psychological possession. Useful for thinking about ideology, extremism, and group minds.",
+      "han-feizi-basic-writings":
+        "Hard-edge Legalist view: people and systems are managed by incentives and punishment, not virtue. Sharp contrast to Confucian ideals.",
+      "clausewitz-on-war-selected":
+        "Fog, friction, and center of gravity. Pairs well with Art of War to see similarities and differences in Western vs. Eastern framing.",
+      "mach-discourses":
+        "Machiavelli thinking about republics rather than princes – resilience, civic virtue, and institutional design.",
+      "zen-mind-beginners-mind":
+        "Short talks on practice, attention, and non-grasping. Very readable and stabilizing when everything else feels mentally heavy.",
+      "hakuin-zen-teachings":
+        "More intense Zen style – kōan work, pressure, and sudden vs. gradual awakening. Shows another side of Japanese Zen culture.",
+      "yamamoto-hagakure":
+        "Samurai ethics, loyalty, and readiness for death. A window into honor culture and how it can twist or refine behavior.",
+      "polya-how-to-solve-it":
+        "Meta-tutorial on problem-solving itself: heuristics, decomposing problems, and checking your own reasoning.",
+      "dennett-intuition-pumps":
+        "A toolbox of mental models and thought experiments for analyzing ideas without getting lost in jargon.",
+      "jung-red-book-selected":
+        "Jung's inner visions and dialogues. Very symbolic and strange – best approached after some grounding in his conceptual work.",
+      "nietzsche-genealogy-of-morals":
+        "Historical and psychological look at how moral values evolved, including ressentiment and guilt.",
+      "laozi-tao-te-ching":
+        "Short, poetic aphorisms about non-forcing, balance, and leadership through emptiness. Pairs well with Sun Tzu and Zen texts.",
+      "mencius":
+        "Conversations on human nature, governing, and compassion. Soft counterpoint to Han Feizi's harshness.",
+      "csikszentmihalyi-flow":
+        "Research on flow states – when effort feels effortless. Useful both for work and for understanding your own Stage 1/2 histories.",
+      "taleb-antifragile":
+        "Systems that benefit from stress and noise. Good for thinking about recovery, redundancy, and long-term robustness.",
+    };
+
+    // --- Local storage keys -------------------------------------------------
+
+    const PROGRESS_KEY = "renseiCanonProgressV1";
+    const CUSTOM_KEY = "renseiCustomCanonV2";
+    const UI_KEY = "renseiCanonUiV1";
+
+    // --- State ----------------------------------------------------------------
+
+    let progress = loadProgress();
+    let uiState = loadUiState();
+    let customLists = loadCustomLists();
+
+    // Ensure at least one custom list exists
+    if (customLists.length === 0) {
+      customLists.push({
+        id: "default-list",
+        name: "My List",
+        items: autoBuildDefaultCustomItems(),
+      });
+      saveCustomLists();
+    }
+
+    // --- Init -----------------------------------------------------------------
+
+    document.addEventListener("DOMContentLoaded", () => {
+      wireTabs();
+      wireToggles();
+      wireClearProgress();
+      renderAll();
+    });
+
+    function wireTabs() {
+      const btns = document.querySelectorAll(".tab-btn");
+      btns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const tab = btn.dataset.tab;
+          uiState.activeTab = tab;
+          saveUiState();
+          updateTabVisibility();
+        });
+      });
+      updateTabVisibility();
+    }
+
+    function updateTabVisibility() {
+      const active = uiState.activeTab || "rensei";
+      document
+        .querySelectorAll(".tab-btn")
+        .forEach((b) => b.classList.toggle("active", b.dataset.tab === active));
+      document
+        .getElementById("tab-rensei")
+        .style.setProperty("display", active === "rensei" ? "" : "none");
+      document
+        .getElementById("tab-custom")
+        .style.setProperty("display", active === "custom" ? "" : "none");
+    }
+
+    function wireToggles() {
+      const viewModeToggle = document.getElementById("viewModeToggle");
+      const expandedToggle = document.getElementById("expandedToggle");
+
+      viewModeToggle.checked = uiState.viewMode === "grouped";
+      expandedToggle.checked = uiState.showExpanded !== false;
+
+      viewModeToggle.addEventListener("change", () => {
+        uiState.viewMode = viewModeToggle.checked ? "grouped" : "condensed";
+        saveUiState();
+        renderRenseiView();
+      });
+
+      expandedToggle.addEventListener("change", () => {
+        uiState.showExpanded = expandedToggle.checked;
+        saveUiState();
+        updateExpandedVisibility();
+      });
+      updateExpandedVisibility();
+    }
+
+    function wireClearProgress() {
+      const btn = document.getElementById("clearProgressBtn");
+      btn.addEventListener("click", () => {
+        const ok = window.confirm(
+          "Clear all completion checkmarks for Rensei + custom lists on this device?",
+        );
+        if (!ok) return;
+        progress = {};
+        saveProgress();
+        renderAll();
+      });
+    }
+
+    function updateExpandedVisibility() {
+      const wrapper = document.getElementById("expandedWrapper");
+      if (!wrapper) return;
+      wrapper.style.display = uiState.showExpanded === false ? "none" : "";
+    }
+
+    function renderAll() {
+      renderRenseiView();
+      renderCustomView();
+      wireTooltipHandlers();
+      updateStats();
+    }
+
+    // --- Render: Rensei ------------------------------------------------------
+
+    function renderRenseiView() {
+      const condensedEl = document.getElementById("renseiCondensed");
+      const groupedEl = document.getElementById("renseiGrouped");
+      const labelEl = document.getElementById("renseiViewLabel");
+
+      const viewMode = uiState.viewMode || "condensed";
+      const customIds = collectAllCustomIds();
+
+      if (viewMode === "condensed") {
+        condensedEl.style.display = "";
+        groupedEl.style.display = "none";
+        labelEl.textContent = "View: condensed columns by canon type.";
+        renderCondensedCanon(condensedEl, customIds);
+      } else {
+        condensedEl.style.display = "none";
+        groupedEl.style.display = "";
+        labelEl.textContent = "View: grouped by core work with secondary/tertiary beneath.";
+        renderGroupedCanon(groupedEl, customIds);
+      }
+
+      renderExpandedList(customIds);
+    }
+
+    function renderCondensedCanon(container, customIds) {
+      container.innerHTML = "";
+
+      const colConfig = [
+        { key: "core", label: "Core Canon", tag: "psych / strategy" },
+        { key: "secondary", label: "Secondary Canon", tag: "extensions" },
+        { key: "buddhist", label: "Buddhist & Tao", tag: "depth & calm" },
+        { key: "thinking", label: "Thinking About Thinking", tag: "meta" },
+      ];
+
+      const booksByCategory = {
+        core: CANON_BOOKS.filter((b) => b.tier === "core"),
+        secondary: CANON_BOOKS.filter((b) => b.tier === "secondary"),
+        buddhist: CANON_BOOKS.filter(
+          (b) =>
+            (b.group === "buddhist" || b.group === "japanese") &&
+            (b.tier === "core" || b.tier === "secondary" || b.tier === "tertiary"),
+        ),
+        thinking: CANON_BOOKS.filter((b) => b.group === "thinking"),
       };
 
-      function getAllCheckboxes() {
-        return Array.from(document.querySelectorAll('input[type="checkbox"][data-book-id]'));
-      }
+      colConfig.forEach((col) => {
+        const colEl = document.createElement("div");
+        colEl.className = "rensei-column";
 
-      function getViewCheckboxes(viewId) {
-        const view = document.getElementById(viewId);
-        if (!view) return [];
-        return Array.from(view.querySelectorAll('input[type="checkbox"][data-book-id]'));
-      }
+        const header = document.createElement("div");
+        header.className = "rensei-col-header";
+        const h3 = document.createElement("h3");
+        h3.textContent = col.label;
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = col.tag;
+        header.appendChild(h3);
+        header.appendChild(tag);
+        colEl.appendChild(header);
 
-      function loadProgressState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_PROGRESS_KEY);
-          if (!raw) return {};
-          return JSON.parse(raw) || {};
-        } catch (e) {
-          console.warn("Failed to parse progress state:", e);
-          return {};
+        const books = [...(booksByCategory[col.key] || [])].sort(
+          (a, b) => a.order - b.order,
+        );
+
+        if (books.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "custom-list empty";
+          empty.textContent = "No items (yet).";
+          colEl.appendChild(empty);
+        } else {
+          books.forEach((book) => {
+            colEl.appendChild(buildRenseiItem(book, customIds));
+          });
         }
-      }
 
-      function saveProgressState(state) {
-        try {
-          localStorage.setItem(STORAGE_PROGRESS_KEY, JSON.stringify(state));
-        } catch (e) {
-          console.warn("Failed to save progress state:", e);
+        container.appendChild(colEl);
+      });
+    }
+
+    function renderGroupedCanon(container, customIds) {
+      container.innerHTML = "";
+      const cores = CANON_BOOKS.filter((b) => b.tier === "core").sort(
+        (a, b) => a.order - b.order,
+      );
+
+      cores.forEach((core) => {
+        const groupEl = document.createElement("section");
+        groupEl.className = "core-group";
+        groupEl.dataset.coreId = core.id;
+
+        const headerRow = document.createElement("div");
+        headerRow.className = "core-header-row";
+
+        const coreItem = buildRenseiItem(core, customIds);
+        coreItem.classList.add("core-root-item");
+
+        const coreLabel = document.createElement("span");
+        coreLabel.className = "core-label";
+        coreLabel.textContent = core.title;
+
+        const coreMeta = document.createElement("span");
+        coreMeta.className = "core-meta";
+        coreMeta.textContent = "Core anchor · hover for description";
+
+        const left = document.createElement("div");
+        left.style.display = "flex";
+        left.style.alignItems = "center";
+        left.style.gap = "6px";
+        left.appendChild(coreItem);
+
+        headerRow.appendChild(left);
+        headerRow.appendChild(coreMeta);
+        groupEl.appendChild(headerRow);
+
+        const subgrid = document.createElement("div");
+        subgrid.className = "core-subgrid";
+
+        const secCol = document.createElement("div");
+        secCol.className = "group-column";
+        const secHeader = document.createElement("h4");
+        secHeader.textContent = "Secondary suggestions";
+        secCol.appendChild(secHeader);
+
+        const secondaries = CANON_BOOKS.filter(
+          (b) => b.tier === "secondary" && b.coreParentId === core.id,
+        ).sort((a, b) => a.order - b.order);
+
+        if (secondaries.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "custom-list empty";
+          empty.textContent = "— none wired yet —";
+          secCol.appendChild(empty);
+        } else {
+          secondaries.forEach((book) => {
+            secCol.appendChild(buildRenseiItem(book, customIds));
+          });
         }
+
+        const terCol = document.createElement("div");
+        terCol.className = "group-column";
+        const terHeader = document.createElement("h4");
+        terHeader.textContent = "Tertiary & edges";
+        terCol.appendChild(terHeader);
+
+        const tertiaries = CANON_BOOKS.filter(
+          (b) => b.tier === "tertiary" && b.coreParentId === core.id,
+        ).sort((a, b) => a.order - b.order);
+
+        if (tertiaries.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "custom-list empty";
+          empty.textContent = "— fill from Expanded Path if helpful —";
+          terCol.appendChild(empty);
+        } else {
+          tertiaries.forEach((book) => {
+            terCol.appendChild(buildRenseiItem(book, customIds));
+          });
+        }
+
+        subgrid.appendChild(secCol);
+        subgrid.appendChild(terCol);
+        groupEl.appendChild(subgrid);
+
+        container.appendChild(groupEl);
+      });
+    }
+
+    function buildRenseiItem(book, customIds) {
+      const item = document.createElement("div");
+      item.className = "check-item";
+      item.dataset.bookId = book.id;
+
+      if (progress[book.id]) {
+        item.classList.add("completed");
       }
 
-      function loadCustomState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_CUSTOM_KEY);
-          if (!raw) return [];
-          const parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed)) return [];
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = !!progress[book.id];
+      checkbox.dataset.bookId = book.id;
+      checkbox.addEventListener("change", () => {
+        const checked = checkbox.checked;
+        progress[book.id] = !!checked;
+        if (!checked) delete progress[book.id];
+        saveProgress();
+        renderAll();
+      });
 
-          // Migration from old flat-array format
-          if (parsed.length && parsed[0] && !parsed[0].items) {
-            const items = parsed.map((it) => {
-              if (typeof it === "string") {
-                return { id: "migrated-" + slugify(it), title: it };
-              }
-              return { id: it.id || ("migrated-" + slugify(it.title || "")), title: it.title || "Untitled" };
+      const mainline = document.createElement("div");
+      mainline.className = "book-mainline";
+
+      const label = document.createElement("div");
+      label.className = "book-label";
+      label.textContent = book.title;
+      label.dataset.bookId = book.id;
+
+      const actions = document.createElement("div");
+      actions.className = "book-actions";
+
+      const idChip = document.createElement("span");
+      idChip.className = "id-chip";
+      idChip.textContent = book.id;
+      label.appendChild(idChip);
+
+      const addBtn = document.createElement("button");
+      addBtn.className = "add-btn";
+      addBtn.type = "button";
+      addBtn.dataset.bookId = book.id;
+      addBtn.innerHTML = '<span class="plus">+</span><span>Add</span>';
+
+      if (customIds.has(book.id)) {
+        addBtn.disabled = true;
+        addBtn.title = "Already in one of your custom lists";
+      } else {
+        addBtn.title = "Add to your first custom list";
+        addBtn.addEventListener("click", () => {
+          ensureDefaultCustomList();
+          const firstList = customLists[0];
+          if (!firstList.items.find((it) => it.id === book.id)) {
+            firstList.items.push({
+              id: book.id,
+              title: book.title,
+              source: "rensei",
             });
-            return [
-              {
-                id: "my-list",
-                title: "My List",
-                type: "other",
-                items
-              }
-            ];
-          }
-
-          return parsed.map((g) => ({
-            id: g.id || ("group-" + Math.random().toString(36).slice(2)),
-            title: g.title || "Untitled",
-            type: g.type || "other",
-            items: Array.isArray(g.items)
-              ? g.items.map((it) => ({
-                  id: it.id || ("item-" + Math.random().toString(36).slice(2)),
-                  title: it.title || "Untitled"
-                }))
-              : []
-          }));
-        } catch (e) {
-          console.warn("Failed to parse custom state:", e);
-          return [];
-        }
-      }
-
-      function saveCustomState(groups) {
-        try {
-          localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(groups));
-        } catch (e) {
-          console.warn("Failed to save custom state:", e);
-        }
-      }
-
-      function loadUiState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_UI_KEY);
-          if (!raw) return { expanded: false };
-          const parsed = JSON.parse(raw);
-          return {
-            expanded: !!parsed.expanded
-          };
-        } catch (e) {
-          return { expanded: false };
-        }
-      }
-
-      function saveUiState(state) {
-        try {
-          localStorage.setItem(STORAGE_UI_KEY, JSON.stringify(state));
-        } catch (e) {
-          console.warn("Failed to save UI state:", e);
-        }
-      }
-
-      function slugify(text) {
-        return (text || "")
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "") || "item";
-      }
-
-      function ensureUniqueId(baseId, existingIds) {
-        let id = baseId;
-        let n = 1;
-        while (existingIds.has(id)) {
-          id = baseId + "-" + n;
-          n++;
-        }
-        return id;
-      }
-
-      function renderCustomGroups(customGroups, progressState) {
-        customGroupsContainer.innerHTML = "";
-        customGroups.forEach((group, gIndex) => {
-          const card = document.createElement("div");
-          card.className = "section-card custom-group";
-          card.dataset.groupIndex = String(gIndex);
-
-          const header = document.createElement("div");
-          header.className = "section-header";
-
-          const titleWrap = document.createElement("div");
-          const titleRow = document.createElement("div");
-          titleRow.className = "section-title";
-          const titleSpan = document.createElement("span");
-          titleSpan.textContent = group.title;
-          const typeTag = document.createElement("span");
-          typeTag.className = "custom-group-type-tag";
-          typeTag.textContent = group.type;
-          titleRow.appendChild(titleSpan);
-          titleRow.appendChild(typeTag);
-          titleWrap.appendChild(titleRow);
-
-          const headerControls = document.createElement("div");
-          headerControls.className = "custom-controls";
-
-          const renameBtn = document.createElement("button");
-          renameBtn.type = "button";
-          renameBtn.className = "mini-btn";
-          renameBtn.dataset.action = "rename-group";
-          renameBtn.textContent = "Rename";
-
-          const deleteBtn = document.createElement("button");
-          deleteBtn.type = "button";
-          deleteBtn.className = "mini-btn danger";
-          deleteBtn.dataset.action = "delete-group";
-          deleteBtn.textContent = "Delete";
-
-          headerControls.appendChild(renameBtn);
-          headerControls.appendChild(deleteBtn);
-
-          header.appendChild(titleWrap);
-          header.appendChild(headerControls);
-
-          const body = document.createElement("div");
-          body.className = "section-body";
-
-          const inputRow = document.createElement("div");
-          inputRow.className = "custom-input-row";
-
-          const titleInput = document.createElement("input");
-          titleInput.type = "text";
-          titleInput.placeholder = "Book title for this list";
-          titleInput.dataset.role = "item-title-input";
-          titleInput.dataset.groupIndex = String(gIndex);
-
-          const idInput = document.createElement("input");
-          idInput.type = "text";
-          idInput.placeholder = "Optional ID (for sync)";
-          idInput.dataset.role = "item-id-input";
-          idInput.dataset.groupIndex = String(gIndex);
-
-          const addItemBtn = document.createElement("button");
-          addItemBtn.type = "button";
-          addItemBtn.className = "pill-button";
-          addItemBtn.dataset.action = "add-item";
-          addItemBtn.dataset.groupIndex = String(gIndex);
-          addItemBtn.innerHTML = '<span class="icon">➕</span><span>Add</span>';
-
-          inputRow.appendChild(titleInput);
-          inputRow.appendChild(idInput);
-          inputRow.appendChild(addItemBtn);
-
-          const listLabel = document.createElement("div");
-          listLabel.className = "list-group-label";
-          listLabel.textContent = "Items";
-
-          const list = document.createElement("ul");
-          list.className = "checklist";
-          list.dataset.groupIndex = String(gIndex);
-
-          group.items.forEach((item, iIndex) => {
-            const li = document.createElement("li");
-            li.className = "check-item";
-            li.dataset.groupIndex = String(gIndex);
-            li.dataset.itemIndex = String(iIndex);
-
-            const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.dataset.bookId = item.id;
-            cb.id = "custom-" + gIndex + "-" + iIndex;
-            cb.checked = !!progressState[item.id];
-
-            const label = document.createElement("label");
-            label.setAttribute("for", cb.id);
-            label.textContent = item.title;
-
-            const controls = document.createElement("div");
-            controls.className = "custom-controls";
-
-            const upBtn = document.createElement("button");
-            upBtn.type = "button";
-            upBtn.className = "mini-btn";
-            upBtn.dataset.action = "up-item";
-            upBtn.textContent = "▲";
-
-            const downBtn = document.createElement("button");
-            downBtn.type = "button";
-            downBtn.className = "mini-btn";
-            downBtn.dataset.action = "down-item";
-            downBtn.textContent = "▼";
-
-            const duplicateBtn = document.createElement("button");
-            duplicateBtn.type = "button";
-            duplicateBtn.className = "mini-btn";
-            duplicateBtn.dataset.action = "duplicate-item";
-            duplicateBtn.textContent = "Copy";
-
-            const delBtn = document.createElement("button");
-            delBtn.type = "button";
-            delBtn.className = "mini-btn danger";
-            delBtn.dataset.action = "delete-item";
-            delBtn.textContent = "✕";
-
-            controls.appendChild(upBtn);
-            controls.appendChild(downBtn);
-            controls.appendChild(duplicateBtn);
-            controls.appendChild(delBtn);
-
-            li.appendChild(cb);
-            li.appendChild(label);
-            li.appendChild(controls);
-            list.appendChild(li);
-          });
-
-          body.appendChild(inputRow);
-          body.appendChild(listLabel);
-          body.appendChild(list);
-
-          card.appendChild(header);
-          card.appendChild(body);
-          customGroupsContainer.appendChild(card);
-        });
-
-        attachCheckboxListeners(progressState);
-        updateProgressDisplay();
-        wireRenseiHoverAndAddButtons(customGroups);
-        buildExpandedPath(customGroups);
-      }
-
-      function applyProgressToUI(state) {
-        const checkboxes = getAllCheckboxes();
-        checkboxes.forEach((cb) => {
-          const id = cb.dataset.bookId;
-          if (Object.prototype.hasOwnProperty.call(state, id)) {
-            cb.checked = !!state[id];
+            saveCustomLists();
+            renderAll();
           }
         });
       }
 
-      function updateProgressDisplay() {
-        const checkboxes = getAllCheckboxes();
-        const uniqueIds = new Set();
-        checkboxes.forEach((cb) => uniqueIds.add(cb.dataset.bookId));
-        const totalUnique = uniqueIds.size;
+      actions.appendChild(addBtn);
+      mainline.appendChild(label);
+      mainline.appendChild(actions);
 
-        let completedGlobal = 0;
-        uniqueIds.forEach((id) => {
-          const group = getAllCheckboxes().filter((cb) => cb.dataset.bookId === id);
-          if (group.some((cb) => cb.checked)) {
-            completedGlobal += 1;
-          }
+      item.appendChild(checkbox);
+      item.appendChild(mainline);
+
+      return item;
+    }
+
+    function renderExpandedList(customIds) {
+      const container = document.getElementById("expandedList");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const sorted = [...CANON_BOOKS].sort((a, b) => a.order - b.order);
+
+      sorted.forEach((book) => {
+        const item = document.createElement("div");
+        item.className = "check-item";
+        item.dataset.bookId = book.id;
+
+        if (progress[book.id]) item.classList.add("completed");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = !!progress[book.id];
+        checkbox.dataset.bookId = book.id;
+        checkbox.addEventListener("change", () => {
+          const checked = checkbox.checked;
+          progress[book.id] = !!checked;
+          if (!checked) delete progress[book.id];
+          saveProgress();
+          renderAll();
         });
 
-        if (progressTotalGlobalEl) progressTotalGlobalEl.textContent = String(totalUnique);
-        if (progressCountGlobalEl) progressCountGlobalEl.textContent = String(completedGlobal);
+        const mainline = document.createElement("div");
+        mainline.className = "book-mainline";
 
-        // Current view stats
-        const activeView = document.querySelector(".view.active");
-        if (!activeView) return;
-        const viewId = activeView.id;
-        const viewCheckboxes = getViewCheckboxes(viewId);
-        const viewIds = new Set(viewCheckboxes.map((cb) => cb.dataset.bookId));
-        let completedView = 0;
-        viewIds.forEach((id) => {
-          const group = viewCheckboxes.filter((cb) => cb.dataset.bookId === id);
-          if (group.some((cb) => cb.checked)) {
-            completedView += 1;
-          }
-        });
-        if (progressTotalViewEl) progressTotalViewEl.textContent = String(viewIds.size);
-        if (progressCountViewEl) progressCountViewEl.textContent = String(completedView);
+        const label = document.createElement("div");
+        label.className = "book-label";
+        label.textContent = book.title;
+        label.dataset.bookId = book.id;
+
+        const idChip = document.createElement("span");
+        idChip.className = "id-chip";
+        idChip.textContent = book.id;
+        label.appendChild(idChip);
+
+        mainline.appendChild(label);
+        item.appendChild(checkbox);
+        item.appendChild(mainline);
+        container.appendChild(item);
+      });
+    }
+
+    // --- Render: Custom ------------------------------------------------------
+
+    function renderCustomView() {
+      const layout = document.getElementById("customLayout");
+      layout.innerHTML = "";
+
+      if (customLists.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "custom-list empty";
+        empty.textContent =
+          "No custom lists yet. Use “New list” or tap + on the Rensei side.";
+        layout.appendChild(empty);
+        return;
       }
 
-      function syncGroup(bookId, checked, state) {
-        const checkboxes = getAllCheckboxes().filter((cb) => cb.dataset.bookId === bookId);
-        checkboxes.forEach((cb) => { cb.checked = checked; });
-        state[bookId] = checked;
-      }
+      customLists.forEach((list, index) => {
+        const card = document.createElement("section");
+        card.className = "custom-card";
+        card.dataset.listId = list.id;
 
-      function attachCheckboxListeners(state) {
-        const checkboxes = getAllCheckboxes();
-        checkboxes.forEach((cb) => {
-          if (cb._renseiBound) return;
-          cb._renseiBound = true;
-          cb.addEventListener("change", () => {
-            const id = cb.dataset.bookId;
-            syncGroup(id, cb.checked, state);
-            saveProgressState(state);
-            updateProgressDisplay();
-          });
-        });
-      }
+        const header = document.createElement("div");
+        header.className = "custom-header";
 
-      function showTooltip(e, bookId, title) {
-        const desc = DESCRIPTIONS[bookId] || "No description saved yet.";
-        tooltipTitleEl.textContent = title || "";
-        tooltipBodyEl.textContent = desc;
-        tooltipIdEl.textContent = "ID: " + bookId;
-        tooltipEl.style.display = "block";
-        positionTooltip(e);
-      }
+        const headerLeft = document.createElement("div");
+        headerLeft.className = "custom-header-left";
 
-      function positionTooltip(e) {
-        const padding = 12;
-        const tooltipRect = tooltipEl.getBoundingClientRect();
-        let x = e.clientX + 16;
-        let y = e.clientY + 16;
-
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-
-        if (x + tooltipRect.width + padding > vw) {
-          x = e.clientX - tooltipRect.width - 16;
-        }
-        if (y + tooltipRect.height + padding > vh) {
-          y = e.clientY - tooltipRect.height - 16;
-        }
-
-        tooltipEl.style.left = x + "px";
-        tooltipEl.style.top = y + "px";
-      }
-
-      function hideTooltip() {
-        tooltipEl.style.display = "none";
-      }
-
-      function wireRenseiHoverAndAddButtons(customGroups) {
-        if (!renseiView) return;
-
-        // Build a Set of all IDs that exist in custom groups
-        const customIds = new Set();
-        customGroups.forEach((g) => {
-          g.items.forEach((it) => {
-            if (it.id) customIds.add(it.id);
-          });
+        const titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.value = list.name || "Untitled list";
+        titleInput.className = "custom-header-input";
+        titleInput.addEventListener("change", () => {
+          list.name = titleInput.value.trim() || "Untitled list";
+          saveCustomLists();
+          renderCustomView();
         });
 
-        const items = renseiView.querySelectorAll(".check-item");
-        items.forEach((li) => {
-          const cb = li.querySelector('input[data-book-id]');
-          const label = li.querySelector("label");
-          if (!cb || !label) return;
-          const bookId = cb.dataset.bookId;
-          const title = label.textContent.trim();
-          const inExpanded = !!li.closest("#expandedPathList");
+        headerLeft.appendChild(titleInput);
 
-          // Hover tooltip on ALL Rensei + Expanded
-          if (!li._hoverBound) {
-            li._hoverBound = true;
-            li.addEventListener("mouseenter", (e) => showTooltip(e, bookId, title));
-            li.addEventListener("mousemove", (e) => positionTooltip(e));
-            li.addEventListener("mouseleave", hideTooltip);
-          }
+        const headerTools = document.createElement("div");
+        headerTools.className = "custom-tools";
 
-          // Only show "Add to custom" on base canon items (not in expanded)
-          let addBtn = li.querySelector("button[data-role='add-to-custom']");
-          if (!inExpanded) {
-            if (!addBtn) {
-              addBtn = document.createElement("button");
-              addBtn.type = "button";
-              addBtn.className = "mini-btn";
-              addBtn.dataset.role = "add-to-custom";
-              addBtn.textContent = "Add";
-              addBtn.title = "Add to Custom Canon (first list)";
-              addBtn.addEventListener("click", () => {
-                addCustomItemFromRensei(bookId, title);
-              });
-              li.appendChild(addBtn);
-            }
-            // Update disabled state per book ID
-            const already = customIds.has(bookId);
-            addBtn.disabled = already;
-            addBtn.title = already
-              ? "Already in your custom lists"
-              : "Add to Custom Canon (first list)";
-          } else {
-            // If this is in the Expanded path, remove any stray Add button
-            if (addBtn) {
-              addBtn.remove();
-            }
-          }
+        const moveLeftBtn = document.createElement("button");
+        moveLeftBtn.type = "button";
+        moveLeftBtn.className = "icon-btn";
+        moveLeftBtn.title = "Move list left";
+        moveLeftBtn.textContent = "↤";
+        moveLeftBtn.disabled = index === 0;
+        moveLeftBtn.addEventListener("click", () => {
+          if (index === 0) return;
+          const [removed] = customLists.splice(index, 1);
+          customLists.splice(index - 1, 0, removed);
+          saveCustomLists();
+          renderCustomView();
         });
-      }
 
-      function addCustomItemFromRensei(bookId, title) {
-        if (bookExistsInCustom(bookId, customGroupsRef)) {
-          return;
-        }
-        if (!customGroupsRef.length) {
-          customGroupsRef.push({
-            id: "my-list",
-            title: "My List",
-            type: "other",
-            items: []
-          });
-        }
-        const targetGroup = customGroupsRef[0];
-        targetGroup.items.push({ id: bookId, title: title });
-        saveCustomState(customGroupsRef);
-        renderCustomGroups(customGroupsRef, progressStateRef);
-        applyProgressToUI(progressStateRef);
-        updateProgressDisplay();
-      }
+        const moveRightBtn = document.createElement("button");
+        moveRightBtn.type = "button";
+        moveRightBtn.className = "icon-btn";
+        moveRightBtn.title = "Move list right";
+        moveRightBtn.textContent = "↦";
+        moveRightBtn.disabled = index === customLists.length - 1;
+        moveRightBtn.addEventListener("click", () => {
+          if (index === customLists.length - 1) return;
+          const [removed] = customLists.splice(index, 1);
+          customLists.splice(index + 1, 0, removed);
+          saveCustomLists();
+          renderCustomView();
+        });
 
-      function bookExistsInCustom(bookId, customGroups) {
-        for (const g of customGroups) {
-          for (const it of g.items) {
-            if (it.id === bookId) return true;
-          }
-        }
-        return false;
-      }
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "icon-btn danger";
+        deleteBtn.title = "Delete list";
+        deleteBtn.textContent = "✕";
+        deleteBtn.addEventListener("click", () => {
+          const ok = window.confirm(`Delete list “${list.name}”?`);
+          if (!ok) return;
+          customLists.splice(index, 1);
+          saveCustomLists();
+          renderAll();
+        });
 
-      function attachGlobalListeners(progressState, customGroups, uiState) {
-        // Reset button
-        if (resetBtn) {
-          resetBtn.addEventListener("click", () => {
-            if (!confirm("Reset all reading progress?")) return;
-            const checkboxes = getAllCheckboxes();
-            checkboxes.forEach((cb) => { cb.checked = false; });
-            const empty = {};
-            saveProgressState(empty);
-            applyProgressToUI(empty);
-            updateProgressDisplay();
+        const completedCount = list.items.filter((it) =>
+          isItemCompleted(it),
+        ).length;
+        const progressText = document.createElement("span");
+        progressText.className = "custom-progress";
+        progressText.textContent = list.items.length
+          ? `${completedCount}/${list.items.length} done`
+          : "0/0";
+
+        headerTools.appendChild(progressText);
+        headerTools.appendChild(moveLeftBtn);
+        headerTools.appendChild(moveRightBtn);
+        headerTools.appendChild(deleteBtn);
+
+        header.appendChild(headerLeft);
+        header.appendChild(headerTools);
+
+        card.appendChild(header);
+
+        const listBox = document.createElement("div");
+        listBox.className = "custom-list";
+        if (!list.items || list.items.length === 0) {
+          listBox.classList.add("empty");
+          listBox.textContent = "Empty – add items from Rensei or below.";
+        } else {
+          list.items.forEach((itemData, itemIndex) => {
+            listBox.appendChild(
+              buildCustomItem(list, itemData, itemIndex),
+            );
           });
         }
 
-        // Tabs
-        tabButtons.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const view = btn.dataset.view;
-            tabButtons.forEach((b) => b.classList.toggle("active", b === btn));
-            if (view === "rensei") {
-              renseiView.classList.add("active");
-              customView.classList.remove("active");
-            } else {
-              customView.classList.add("active");
-              renseiView.classList.remove("active");
-              hideTooltip();
-            }
-            updateProgressDisplay();
-          });
+        card.appendChild(listBox);
+
+        const addRow = document.createElement("div");
+        addRow.className = "add-custom-row";
+
+        const label = document.createElement("span");
+        label.textContent = "Add free-form item:";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Title (e.g. Rensei Papers Vol. 1)";
+
+        const addBtn = document.createElement("button");
+        addBtn.type = "button";
+        addBtn.className = "small-ghost";
+        addBtn.innerHTML = '<span class="dot"></span>Add';
+        addBtn.addEventListener("click", () => {
+          const title = input.value.trim();
+          if (!title) return;
+          const id = "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+          list.items.push({ id, title, source: "custom" });
+          input.value = "";
+          saveCustomLists();
+          renderAll();
         });
 
-        // Expanded toggle
-        if (toggleExpandedBtn) {
-          toggleExpandedBtn.addEventListener("click", () => {
-            const newState = !uiState.expanded;
-            uiState.expanded = newState;
-            setExpandedMode(newState);
-            saveUiState(uiState);
-          });
+        addRow.appendChild(label);
+        addRow.appendChild(input);
+        addRow.appendChild(addBtn);
+
+        card.appendChild(addRow);
+
+        layout.appendChild(card);
+      });
+
+      const addListBtn = document.getElementById("addListBtn");
+      addListBtn.onclick = () => {
+        const id =
+          "list-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6);
+        customLists.push({ id, name: "New List", items: [] });
+        saveCustomLists();
+        renderCustomView();
+      };
+    }
+
+    function buildCustomItem(list, itemData, itemIndex) {
+      const bookId = itemData.id;
+      const isRensei = !!CANON_BOOKS.find((b) => b.id === bookId);
+      const title = itemData.title || (isRensei ? lookupBookTitle(bookId) : bookId);
+
+      const container = document.createElement("div");
+      container.className = "check-item";
+      container.dataset.bookId = bookId;
+
+      if (isItemCompleted(itemData)) container.classList.add("completed");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = !!progress[bookId];
+      checkbox.dataset.bookId = bookId;
+      checkbox.addEventListener("change", () => {
+        const checked = checkbox.checked;
+        progress[bookId] = !!checked;
+        if (!checked) delete progress[bookId];
+        saveProgress();
+        renderAll();
+      });
+
+      const mainline = document.createElement("div");
+      mainline.className = "book-mainline";
+
+      const label = document.createElement("div");
+      label.className = "book-label";
+      label.textContent = title;
+      label.dataset.bookId = bookId;
+
+      const idChip = document.createElement("span");
+      idChip.className = "id-chip";
+      idChip.textContent = bookId;
+      label.appendChild(idChip);
+
+      const actions = document.createElement("div");
+      actions.className = "custom-item-btns";
+
+      const upBtn = document.createElement("button");
+      upBtn.type = "button";
+      upBtn.className = "icon-btn";
+      upBtn.title = "Move up";
+      upBtn.textContent = "↑";
+      upBtn.disabled = itemIndex === 0;
+      upBtn.addEventListener("click", () => {
+        if (itemIndex === 0) return;
+        const [removed] = list.items.splice(itemIndex, 1);
+        list.items.splice(itemIndex - 1, 0, removed);
+        saveCustomLists();
+        renderCustomView();
+      });
+
+      const downBtn = document.createElement("button");
+      downBtn.type = "button";
+      downBtn.className = "icon-btn";
+      downBtn.title = "Move down";
+      downBtn.textContent = "↓";
+      downBtn.disabled = itemIndex === list.items.length - 1;
+      downBtn.addEventListener("click", () => {
+        if (itemIndex === list.items.length - 1) return;
+        const [removed] = list.items.splice(itemIndex, 1);
+        list.items.splice(itemIndex + 1, 0, removed);
+        saveCustomLists();
+        renderCustomView();
+      });
+
+      const dupBtn = document.createElement("button");
+      dupBtn.type = "button";
+      dupBtn.className = "icon-btn";
+      dupBtn.title = "Duplicate into another list";
+      dupBtn.textContent = "⧉";
+      dupBtn.addEventListener("click", () => {
+        if (customLists.length <= 1) return;
+        const other = customLists.find((l) => l.id !== list.id);
+        if (!other) return;
+        other.items.push({ ...itemData });
+        saveCustomLists();
+        renderAll();
+      });
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "icon-btn danger";
+      delBtn.title = "Remove from this list";
+      delBtn.textContent = "✕";
+      delBtn.addEventListener("click", () => {
+        list.items.splice(itemIndex, 1);
+        saveCustomLists();
+        renderAll();
+      });
+
+      actions.appendChild(upBtn);
+      actions.appendChild(downBtn);
+      actions.appendChild(dupBtn);
+      actions.appendChild(delBtn);
+
+      mainline.appendChild(label);
+      mainline.appendChild(actions);
+      container.appendChild(checkbox);
+      container.appendChild(mainline);
+
+      return container;
+    }
+
+    // --- Tooltip handling ----------------------------------------------------
+
+    function wireTooltipHandlers() {
+      const tooltip = document.getElementById("tooltip");
+      if (!tooltip) return;
+
+      const titleEl = tooltip.querySelector(".tooltip-title");
+      const bodyEl = tooltip.querySelector(".tooltip-body");
+      const idEl = tooltip.querySelector(".tooltip-id .value");
+
+      const targets = document.querySelectorAll(".book-label");
+
+      targets.forEach((el) => {
+        el.addEventListener("mouseenter", (e) => {
+          const id = el.dataset.bookId;
+          const book = CANON_BOOKS.find((b) => b.id === id);
+          const desc =
+            DESCRIPTIONS[id] ||
+            (book
+              ? "No long description stored yet – title and ID are wired."
+              : "Custom item. Description not available.");
+
+          titleEl.textContent = book ? book.title : el.textContent || id;
+          bodyEl.textContent = desc;
+          idEl.textContent = id;
+
+          tooltip.classList.add("visible");
+          tooltip.setAttribute("aria-hidden", "false");
+          positionTooltip(e, tooltip);
+        });
+
+        el.addEventListener("mousemove", (e) => {
+          positionTooltip(e, tooltip);
+        });
+
+        el.addEventListener("mouseleave", () => {
+          tooltip.classList.remove("visible");
+          tooltip.setAttribute("aria-hidden", "true");
+        });
+      });
+    }
+
+    function positionTooltip(evt, tooltip) {
+      const padding = 12;
+      const { clientX, clientY } = evt;
+      const rect = tooltip.getBoundingClientRect();
+      let x = clientX + 14;
+      let y = clientY + 10;
+
+      const maxX = window.innerWidth - rect.width - padding;
+      const maxY = window.innerHeight - rect.height - padding;
+
+      if (x > maxX) x = maxX;
+      if (y > maxY) y = clientY - rect.height - 10;
+      if (y < padding) y = padding;
+
+      tooltip.style.left = x + "px";
+      tooltip.style.top = y + "px";
+    }
+
+    // --- Stats ---------------------------------------------------------------
+
+    function updateStats() {
+      const allKnownIds = new Set(CANON_BOOKS.map((b) => b.id));
+      customLists.forEach((list) => {
+        list.items.forEach((item) => {
+          if (!allKnownIds.has(item.id)) {
+            allKnownIds.add(item.id);
+          }
+        });
+      });
+
+      let globalTotal = allKnownIds.size;
+      let globalCompleted = 0;
+      allKnownIds.forEach((id) => {
+        if (progress[id]) globalCompleted++;
+      });
+
+      const renseiIds = new Set(CANON_BOOKS.map((b) => b.id));
+      let renseiTotal = renseiIds.size;
+      let renseiCompleted = 0;
+      renseiIds.forEach((id) => {
+        if (progress[id]) renseiCompleted++;
+      });
+
+      let customTotal = 0;
+      let customCompleted = 0;
+      customLists.forEach((list) => {
+        customTotal += list.items.length;
+        list.items.forEach((item) => {
+          if (isItemCompleted(item)) customCompleted++;
+        });
+      });
+
+      document.getElementById("statGlobalCompleted").textContent =
+        globalCompleted;
+      document.getElementById("statGlobalTotal").textContent = globalTotal;
+
+      document.getElementById("statRenseiCompleted").textContent =
+        renseiCompleted;
+      document.getElementById("statRenseiTotal").textContent = renseiTotal;
+
+      document.getElementById("statCustomCompleted").textContent =
+        customCompleted;
+      document.getElementById("statCustomTotal").textContent = customTotal;
+    }
+
+    function isItemCompleted(item) {
+      return !!progress[item.id];
+    }
+
+    // --- Helpers: storage & defaults ----------------------------------------
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(PROGRESS_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    function loadUiState() {
+      try {
+        const raw = localStorage.getItem(UI_KEY);
+        if (!raw) {
+          return { activeTab: "rensei", viewMode: "condensed", showExpanded: true };
         }
+        const parsed = JSON.parse(raw);
+        return {
+          activeTab: parsed.activeTab || "rensei",
+          viewMode: parsed.viewMode || "condensed",
+          showExpanded:
+            typeof parsed.showExpanded === "boolean" ? parsed.showExpanded : true,
+        };
+      } catch (e) {
+        return { activeTab: "rensei", viewMode: "condensed", showExpanded: true };
+      }
+    }
 
-        // Add group
-        if (addGroupBtn) {
-          addGroupBtn.addEventListener("click", () => {
-            const title = (newGroupTitleInput.value || "").trim() || "Untitled List";
-            const type = newGroupTypeSelect.value || "other";
-            const idBase = "group-" + slugify(title);
-            const existingIds = new Set(customGroups.map((g) => g.id));
-            const groupId = ensureUniqueId(idBase, existingIds);
-            customGroups.push({
-              id: groupId,
-              title,
-              type,
-              items: []
-            });
-            saveCustomState(customGroups);
-            renderCustomGroups(customGroups, progressState);
-            applyProgressToUI(progressState);
-            updateProgressDisplay();
-            newGroupTitleInput.value = "";
-          });
-        }
+    function saveUiState() {
+      try {
+        localStorage.setItem(UI_KEY, JSON.stringify(uiState));
+      } catch (e) {
+        // ignore
+      }
+    }
 
-        // Custom groups delegation
-        customGroupsContainer.addEventListener("click", (evt) => {
-          const btn = evt.target.closest("button");
-          if (!btn) return;
-          const action = btn.dataset.action;
-          if (!action) return;
+    function loadCustomLists() {
+      try {
+        const raw = localStorage.getItem(CUSTOM_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map((list) => ({
+          id:
+            list.id ||
+            "list-" +
+              Date.now().toString(36) +
+              "-" +
+              Math.random().toString(36).slice(2, 6),
+          name: list.name || "My List",
+          items: Array.isArray(list.items) ? list.items : [],
+        }));
+      } catch (e) {
+        return [];
+      }
+    }
 
-          if (action === "rename-group" || action === "delete-group") {
-            const card = btn.closest(".custom-group");
-            if (!card) return;
-            const gIndex = parseInt(card.dataset.groupIndex || "-1", 10);
-            if (isNaN(gIndex) || gIndex < 0 || gIndex >= customGroups.length) return;
+    function saveCustomLists() {
+      try {
+        localStorage.setItem(CUSTOM_KEY, JSON.stringify(customLists));
+      } catch (e) {
+        // ignore
+      }
+    }
 
-            if (action === "rename-group") {
-              const currentTitle = customGroups[gIndex].title;
-              const newTitle = prompt("New title:", currentTitle);
-              if (newTitle && newTitle.trim()) {
-                customGroups[gIndex].title = newTitle.trim();
-                saveCustomState(customGroups);
-                renderCustomGroups(customGroups, progressState);
-                applyProgressToUI(progressState);
-                updateProgressDisplay();
-              }
-            } else if (action === "delete-group") {
-              if (!confirm("Delete this list and all its items?")) return;
-              customGroups.splice(gIndex, 1);
-              saveCustomState(customGroups);
-              renderCustomGroups(customGroups, progressState);
-              applyProgressToUI(progressState);
-              updateProgressDisplay();
-            }
-            return;
-          }
+    function autoBuildDefaultCustomItems() {
+      // Default list: straight-through core canon path.
+      const coreBooks = CANON_BOOKS.filter((b) => b.tier === "core").sort(
+        (a, b) => a.order - b.order,
+      );
+      return coreBooks.map((b) => ({
+        id: b.id,
+        title: b.title,
+        source: "rensei",
+      }));
+    }
 
-          if (action === "add-item") {
-            const gIndex = parseInt(btn.dataset.groupIndex || "-1", 10);
-            if (isNaN(gIndex) || gIndex < 0 || gIndex >= customGroups.length) return;
-            const card = customGroupsContainer.querySelector('.custom-group[data-group-index="' + gIndex + '"]');
-            if (!card) return;
-            const titleInput = card.querySelector('input[data-role="item-title-input"]');
-            const idInput = card.querySelector('input[data-role="item-id-input"]');
-            const title = (titleInput && titleInput.value || "").trim();
-            let id = (idInput && idInput.value || "").trim();
-
-            if (!title) {
-              alert("Please enter a title.");
-              return;
-            }
-
-            if (!id) {
-              const existingIds = new Set();
-              customGroups.forEach((g) => g.items.forEach((it) => existingIds.add(it.id)));
-              const baseId = "custom-" + slugify(title);
-              id = ensureUniqueId(baseId, existingIds);
-            }
-
-            customGroups[gIndex].items.push({ id, title });
-            saveCustomState(customGroups);
-            renderCustomGroups(customGroups, progressState);
-            applyProgressToUI(progressState);
-            updateProgressDisplay();
-
-            if (titleInput) titleInput.value = "";
-            if (idInput) idInput.value = "";
-            return;
-          }
-
-          // item-level actions
-          const li = btn.closest(".check-item");
-          if (!li) return;
-          const gIndex = parseInt(li.dataset.groupIndex || "-1", 10);
-          const iIndex = parseInt(li.dataset.itemIndex || "-1", 10);
-          if (isNaN(gIndex) || isNaN(iIndex) || gIndex < 0 || iIndex < 0 || gIndex >= customGroups.length || iIndex >= customGroups[gIndex].items.length) {
-            return;
-          }
-
-          if (action === "delete-item") {
-            if (!confirm("Remove this item from the list?")) return;
-            customGroups[gIndex].items.splice(iIndex, 1);
-          } else if (action === "up-item") {
-            if (iIndex > 0) {
-              const tmp = customGroups[gIndex].items[iIndex - 1];
-              customGroups[gIndex].items[iIndex - 1] = customGroups[gIndex].items[iIndex];
-              customGroups[gIndex].items[iIndex] = tmp;
-            }
-          } else if (action === "down-item") {
-            if (iIndex < customGroups[gIndex].items.length - 1) {
-              const tmp = customGroups[gIndex].items[iIndex + 1];
-              customGroups[gIndex].items[iIndex + 1] = customGroups[gIndex].items[iIndex];
-              customGroups[gIndex].items[iIndex] = tmp;
-            }
-          } else if (action === "duplicate-item") {
-            const item = customGroups[gIndex].items[iIndex];
-            if (!item) return;
-            if (!customGroups.length) return;
-            if (customGroups.length === 1) {
-              alert("You only have one list. Add another list first, then you can copy items into it.");
-              return;
-            }
-            const options = customGroups
-              .map((g, idx) => idx === gIndex ? null : (idx + 1) + ": " + g.title)
-              .filter(Boolean)
-              .join("\n");
-            const answer = prompt("Copy to which list?\n" + options + "\n(Enter the number)", "");
-            if (!answer) return;
-            const targetIdx = parseInt(answer, 10) - 1;
-            if (isNaN(targetIdx) || targetIdx < 0 || targetIdx >= customGroups.length || targetIdx === gIndex) {
-              alert("Invalid selection.");
-              return;
-            }
-            customGroups[targetIdx].items.push({ id: item.id, title: item.title });
-          }
-
-          saveCustomState(customGroups);
-          renderCustomGroups(customGroups, progressState);
-          applyProgressToUI(progressState);
-          updateProgressDisplay();
+    function ensureDefaultCustomList() {
+      if (customLists.length === 0) {
+        customLists.push({
+          id: "default-list",
+          name: "My List",
+          items: [],
         });
       }
+      saveCustomLists();
+    }
 
-      function buildExpandedPath(customGroups) {
-        if (!expandedPathList) return;
-        expandedPathList.innerHTML = "";
-
-        const sections = [
-          renseiView.querySelector('[data-section-type="core"] .checklist'),
-          renseiView.querySelector('[data-section-type="secondary"] .checklist'),
-          renseiView.querySelector('[data-section-type="buddhist"] .checklist'),
-          renseiView.querySelector('[data-section-type="thinking"] .checklist')
-        ].filter(Boolean);
-
-        const seen = new Set();
-        sections.forEach((ul) => {
-          const items = Array.from(ul.querySelectorAll(".check-item"));
-          items.forEach((srcLi) => {
-            const cb = srcLi.querySelector('input[data-book-id]');
-            const label = srcLi.querySelector("label");
-            if (!cb || !label) return;
-            const bookId = cb.dataset.bookId;
-            if (seen.has(bookId)) return;
-            seen.add(bookId);
-
-            const li = document.createElement("li");
-            li.className = "check-item";
-
-            const cloneCb = document.createElement("input");
-            cloneCb.type = "checkbox";
-            cloneCb.dataset.bookId = bookId;
-            const tempId = "expanded-" + bookId;
-            cloneCb.id = tempId;
-
-            const labelEl = document.createElement("label");
-            labelEl.setAttribute("for", tempId);
-            labelEl.textContent = label.textContent.trim();
-
-            li.appendChild(cloneCb);
-            li.appendChild(labelEl);
-
-            expandedPathList.appendChild(li);
-          });
+    function collectAllCustomIds() {
+      const set = new Set();
+      customLists.forEach((list) => {
+        (list.items || []).forEach((item) => {
+          if (item && item.id) set.add(item.id);
         });
+      });
+      return set;
+    }
 
-        // After building, reapply progress + listeners + hover
-        attachCheckboxListeners(progressStateRef);
-        applyProgressToUI(progressStateRef);
-        wireRenseiHoverAndAddButtons(customGroups);
-        updateProgressDisplay();
-      }
-
-      function setExpandedMode(on) {
-        if (!expandedPathSection || !toggleExpandedBtn) return;
-        expandedPathSection.classList.toggle("hidden", !on);
-        toggleExpandedBtn.classList.toggle("active", on);
-        const label = toggleExpandedBtn.querySelector(".label");
-        if (label) label.textContent = "Expanded path: " + (on ? "on" : "off");
-      }
-
-      // Initial boot
-      const progressStateRef = loadProgressState();
-      const customGroupsRef = loadCustomState();
-      const uiStateRef = loadUiState();
-
-      renderCustomGroups(customGroupsRef, progressStateRef);
-      applyProgressToUI(progressStateRef);
-      attachCheckboxListeners(progressStateRef);
-      attachGlobalListeners(progressStateRef, customGroupsRef, uiStateRef);
-      buildExpandedPath(customGroupsRef);
-      setExpandedMode(uiStateRef.expanded);
-      updateProgressDisplay();
-      wireRenseiHoverAndAddButtons(customGroupsRef);
-    })();
+    function lookupBookTitle(id) {
+      const book = CANON_BOOKS.find((b) => b.id === id);
+      return book ? book.title : id;
+    }
   </script>
 </body>
 </html>
