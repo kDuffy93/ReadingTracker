@@ -1,99 +1,32 @@
-# Rensei Integrated Canon Tracker (v3)
+# Rensei Integrated Canon Tracker (v4)
 
-Single-file HTML + JS reading tracker for the Rensei Canon with:
+Small tweaks over v3:
 
-- **Rensei Canon view** – prebuilt core + secondary + Buddhist + thinking paths
-- **Expanded Path overlay** – auto-built combined path (Core + all layers)
-- **Custom Canon view** – multi-list custom paths (Core / Secondary / Tertiary / Other)
-- **Synced progress** – if entries share the same `data-book-id`, checking one checks them all
-- **Local-only storage** – everything is kept in `localStorage` in the user's browser only
+- Fix: clicking **Add** on one Rensei item no longer disables all Add buttons.
+- Add: **hover descriptions work in the auto-built Expanded Path** list as well.
+- Keep: global + per-view stats, Expanded Path overlay, Custom Canon multi-lists, synced progress.
 
-Perfect for GitHub Pages: just drop `index.html` into a repo and enable Pages.
+## What changed from v3
 
-## New in v3
+1. **Add button logic**
 
-- **Global + per-view stats**  
-  - `All books: X / Y` — unique completed across the whole app  
-  - `This view: a / b` — unique completed in the currently active tab (Rensei vs Custom)
+   - We now precompute a `Set` of all IDs that exist in your custom lists.
+   - For each Rensei item we:
+     - **Enable / disable** its own “Add” button based on whether *its* ID is in that set.
+   - This prevents the bug where clicking “Add” once made every button look disabled.
 
-- **Expanded Path (overlay)**  
-  - Toggle with the **Expanded path** chip on the top-right.
-  - When ON, an **“Expanded Path (Auto-built)”** section appears above the core canon.
-  - It combines:
-    - Core Canon
-    - Secondary Canon
-    - Buddhist Canon
-    - Thinkers on Thinking  
-  - Each unique book appears once, and is linked to the same IDs as the rest of the UI.
+2. **Expanded Path hover tooltips**
 
-- **Expanded state persists**  
-  - Your Expanded Path ON/OFF state is remembered via `renseiCanonUiV1` in `localStorage`.
+   - The Expanded Path section now reuses the same hover behavior:
+     - Title
+     - Description
+     - Canon ID at the bottom
+   - Add buttons are **removed from Expanded Path items** so it stays a clean overview lane.
 
-- **Rensei → Custom Add button improvements**  
-  - “Add” buttons on each Rensei item are now **disabled** if that ID is already present in any Custom list.
-  - Click “Add”:
-    - If you don’t have any custom lists yet, it auto-creates **“My List”**.
-    - The book is added with the canonical ID (no suffixes), so progress syncs cleanly.
-  - Hover tooltip still shows:
-    - Title
-    - Short description
-    - Canon ID
+3. **Sync & persistence**
 
-- **Custom Canon duplication**  
-  - Each item in a Custom list has a **“Copy”** button.
-  - This lets you **duplicate that book** (same ID, same title) into another list without retyping.
-  - The duplication uses a simple `prompt()` that lists your other lists and asks for a number.
+   - Synced progress still works the same:
+     - Any checkboxes sharing the same `data-book-id` toggle together.
+   - Expanded toggle state still persists via `renseiCanonUiV1`.
 
-## Data model
-
-### Progress
-
-Stored under:
-
-```js
-renseiCanonProgressV1 = {
-  [bookId: string]: boolean
-}
-```
-
-Any checkbox with `data-book-id="..."` reads/writes this state.  
-If two or more checkboxes share the same ID, checking one checks all.
-
-### Custom Canon
-
-Stored under:
-
-```js
-renseiCustomCanonV2 = [
-  {
-    id: string,       // group ID
-    title: string,    // group title
-    type: string,     // "core" | "secondary" | "tertiary" | "other"
-    items: [
-      { id: string, title: string }  // id == data-book-id for syncing
-    ]
-  },
-  ...
-]
-```
-
-### UI state
-
-Stored under:
-
-```js
-renseiCanonUiV1 = {
-  expanded: boolean   // Expanded Path toggle
-}
-```
-
-## Usage
-
-1. Create or reuse a GitHub repo.
-2. Copy `index.html`, `LICENSE`, `.gitignore`, and `README.md` into it.
-3. Enable GitHub Pages (e.g. from `main` branch, `/root`).
-4. Open your Pages URL – you now have the v3 Rensei Canon tracker.
-
-## License
-
-MIT – see `LICENSE`.
+Everything else (data model, localStorage keys, etc.) is compatible with v3.

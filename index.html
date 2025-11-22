@@ -784,7 +784,7 @@
   <script>
     (function () {
       const STORAGE_PROGRESS_KEY = "renseiCanonProgressV1";
-      const STORAGE_CUSTOM_KEY = "renseiCustomCanonV2"; // new shape
+      const STORAGE_CUSTOM_KEY = "renseiCustomCanonV2"; // groups model
       const STORAGE_UI_KEY = "renseiCanonUiV1";
 
       const resetBtn = document.getElementById("resetProgressBtn");
@@ -937,7 +937,7 @@
           const parsed = JSON.parse(raw);
           if (!Array.isArray(parsed)) return [];
 
-          // Migration: if it looks like old simple item array, wrap into one group
+          // Migration from old flat-array format
           if (parsed.length && parsed[0] && !parsed[0].items) {
             const items = parsed.map((it) => {
               if (typeof it === "string") {
@@ -955,7 +955,6 @@
             ];
           }
 
-          // Otherwise assume new shape
           return parsed.map((g) => ({
             id: g.id || ("group-" + Math.random().toString(36).slice(2)),
             title: g.title || "Untitled",
@@ -1166,7 +1165,7 @@
         attachCheckboxListeners(progressState);
         updateProgressDisplay();
         wireRenseiHoverAndAddButtons(customGroups);
-        buildExpandedPath();
+        buildExpandedPath(customGroups);
       }
 
       function applyProgressToUI(state) {
@@ -1266,16 +1265,17 @@
         tooltipEl.style.display = "none";
       }
 
-      function bookIdExistsInCustom(bookId, customGroups) {
-        for (const g of customGroups) {
-          for (const it of g.items) {
-            if (it.id === bookId) return true;
-          }
-        }
-        return false;
-      }
-
       function wireRenseiHoverAndAddButtons(customGroups) {
+        if (!renseiView) return;
+
+        // Build a Set of all IDs that exist in custom groups
+        const customIds = new Set();
+        customGroups.forEach((g) => {
+          g.items.forEach((it) => {
+            if (it.id) customIds.add(it.id);
+          });
+        });
+
         const items = renseiView.querySelectorAll(".check-item");
         items.forEach((li) => {
           const cb = li.querySelector('input[data-book-id]');
@@ -1283,55 +1283,73 @@
           if (!cb || !label) return;
           const bookId = cb.dataset.bookId;
           const title = label.textContent.trim();
+          const inExpanded = !!li.closest("#expandedPathList");
 
-          if (!li._renseiHoverBound) {
-            li._renseiHoverBound = true;
+          // Hover tooltip on ALL Rensei + Expanded
+          if (!li._hoverBound) {
+            li._hoverBound = true;
             li.addEventListener("mouseenter", (e) => showTooltip(e, bookId, title));
             li.addEventListener("mousemove", (e) => positionTooltip(e));
             li.addEventListener("mouseleave", hideTooltip);
           }
 
-          // ensure only one add button and keep its disabled state based on whether it's in custom
+          // Only show "Add to custom" on base canon items (not in expanded)
           let addBtn = li.querySelector("button[data-role='add-to-custom']");
-          if (!addBtn) {
-            addBtn = document.createElement("button");
-            addBtn.type = "button";
-            addBtn.className = "mini-btn";
-            addBtn.dataset.role = "add-to-custom";
-            addBtn.textContent = "Add";
-            addBtn.title = "Add to Custom Canon (first list)";
-            addBtn.addEventListener("click", () => {
-              addCustomItemFromRensei(bookId, title, customGroups);
-            });
-            li.appendChild(addBtn);
+          if (!inExpanded) {
+            if (!addBtn) {
+              addBtn = document.createElement("button");
+              addBtn.type = "button";
+              addBtn.className = "mini-btn";
+              addBtn.dataset.role = "add-to-custom";
+              addBtn.textContent = "Add";
+              addBtn.title = "Add to Custom Canon (first list)";
+              addBtn.addEventListener("click", () => {
+                addCustomItemFromRensei(bookId, title);
+              });
+              li.appendChild(addBtn);
+            }
+            // Update disabled state per book ID
+            const already = customIds.has(bookId);
+            addBtn.disabled = already;
+            addBtn.title = already
+              ? "Already in your custom lists"
+              : "Add to Custom Canon (first list)";
+          } else {
+            // If this is in the Expanded path, remove any stray Add button
+            if (addBtn) {
+              addBtn.remove();
+            }
           }
-
-          const already = bookIdExistsInCustom(bookId, customGroups);
-          addBtn.disabled = already;
-          addBtn.title = already
-            ? "Already in your custom lists"
-            : "Add to Custom Canon (first list)";
         });
       }
 
-      function addCustomItemFromRensei(bookId, title, customGroups) {
-        if (bookIdExistsInCustom(bookId, customGroups)) {
+      function addCustomItemFromRensei(bookId, title) {
+        if (bookExistsInCustom(bookId, customGroupsRef)) {
           return;
         }
-        if (!customGroups.length) {
-          customGroups.push({
+        if (!customGroupsRef.length) {
+          customGroupsRef.push({
             id: "my-list",
             title: "My List",
             type: "other",
             items: []
           });
         }
-        const targetGroup = customGroups[0];
+        const targetGroup = customGroupsRef[0];
         targetGroup.items.push({ id: bookId, title: title });
-        saveCustomState(customGroups);
-        renderCustomGroups(customGroups, progressStateRef);
+        saveCustomState(customGroupsRef);
+        renderCustomGroups(customGroupsRef, progressStateRef);
         applyProgressToUI(progressStateRef);
         updateProgressDisplay();
+      }
+
+      function bookExistsInCustom(bookId, customGroups) {
+        for (const g of customGroups) {
+          for (const it of g.items) {
+            if (it.id === bookId) return true;
+          }
+        }
+        return false;
       }
 
       function attachGlobalListeners(progressState, customGroups, uiState) {
@@ -1397,7 +1415,7 @@
           });
         }
 
-        // Custom groups delegation (rename/delete group, add/up/down/duplicate/delete item)
+        // Custom groups delegation
         customGroupsContainer.addEventListener("click", (evt) => {
           const btn = evt.target.closest("button");
           if (!btn) return;
@@ -1517,9 +1535,10 @@
         });
       }
 
-      function buildExpandedPath() {
+      function buildExpandedPath(customGroups) {
         if (!expandedPathList) return;
         expandedPathList.innerHTML = "";
+
         const sections = [
           renseiView.querySelector('[data-section-type="core"] .checklist'),
           renseiView.querySelector('[data-section-type="secondary"] .checklist'),
@@ -1558,9 +1577,10 @@
           });
         });
 
-        // After building, reapply progress + listeners so they sync
+        // After building, reapply progress + listeners + hover
         attachCheckboxListeners(progressStateRef);
         applyProgressToUI(progressStateRef);
+        wireRenseiHoverAndAddButtons(customGroups);
         updateProgressDisplay();
       }
 
@@ -1577,19 +1597,13 @@
       const customGroupsRef = loadCustomState();
       const uiStateRef = loadUiState();
 
-      // Render custom groups
       renderCustomGroups(customGroupsRef, progressStateRef);
-      // Apply progress to static checkboxes
       applyProgressToUI(progressStateRef);
-      // Attach listeners
       attachCheckboxListeners(progressStateRef);
       attachGlobalListeners(progressStateRef, customGroupsRef, uiStateRef);
-      // Expanded path initial
-      buildExpandedPath();
+      buildExpandedPath(customGroupsRef);
       setExpandedMode(uiStateRef.expanded);
-      // Initial progress display
       updateProgressDisplay();
-      // Wire hover + add buttons
       wireRenseiHoverAndAddButtons(customGroupsRef);
     })();
   </script>
