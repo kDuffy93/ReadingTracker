@@ -260,16 +260,20 @@
       gap: 4px;
       transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
     }
-    .mini-btn:hover {
+    .mini-btn:hover:not(:disabled) {
       background: rgba(22, 28, 54, 0.95);
       color: var(--accent);
       border-color: rgba(109, 211, 255, 0.4);
+    }
+    .mini-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
     }
     .mini-btn.danger {
       color: #ffb0c1;
       border-color: rgba(255, 92, 122, 0.3);
     }
-    .mini-btn.danger:hover {
+    .mini-btn.danger:hover:not(:disabled) {
       color: #ffe3ea;
       border-color: var(--danger);
       background: rgba(255, 92, 122, 0.12);
@@ -355,9 +359,6 @@
       color: #7bd6ff;
     }
     .hidden { display: none !important; }
-    .condensed-only { display: none; }
-    .expanded-mode .condensed-only { display: inline-flex; }
-    .expanded-mode .expanded-hidden { display: none !important; }
 
     @media (min-width: 768px) {
       .app-shell { padding: 32px 24px 52px; }
@@ -382,10 +383,16 @@
           <span>Reset all progress</span>
         </button>
         <div class="progress-chip">
-          <span>Completed:</span>
-          <span class="value" id="progressCount">0</span>
+          <span>All books:</span>
+          <span class="value" id="progressCountGlobal">0</span>
           <span>/</span>
-          <span id="progressTotal">0</span>
+          <span id="progressTotalGlobal">0</span>
+        </div>
+        <div class="progress-chip">
+          <span>This view:</span>
+          <span class="value" id="progressCountView">0</span>
+          <span>/</span>
+          <span id="progressTotalView">0</span>
         </div>
         <div class="view-tabs">
           <button type="button" class="tab-button active" data-view="rensei">
@@ -397,9 +404,9 @@
             <span>Custom Canon</span>
           </button>
         </div>
-        <button type="button" class="toggle-chip expanded-hidden" id="toggleExpandedBtn">
+        <button type="button" class="toggle-chip" id="toggleExpandedBtn">
           <span class="icon">⤢</span>
-          <span class="label">Expanded view: off</span>
+          <span class="label">Expanded path: off</span>
         </button>
       </div>
     </header>
@@ -408,6 +415,26 @@
       <!-- Rensei Canon View -->
       <div class="view active" id="renseiView">
         <div class="view-sections">
+          <!-- Expanded combined path (only visible when expanded) -->
+          <section class="section-card hidden" id="expandedPathSection">
+            <div class="section-header">
+              <div>
+                <div class="section-title">
+                  Expanded Path (Auto-built)
+                  <span class="tag">Core + Layers</span>
+                </div>
+                <div class="section-subtitle">
+                  A single combined path built from the core plus the other Rensei sections. Optional overlay; the lists below still show everything by category.
+                </div>
+              </div>
+            </div>
+            <div class="section-body">
+              <ul class="checklist" id="expandedPathList">
+                <!-- auto-generated -->
+              </ul>
+            </div>
+          </section>
+
           <!-- Core Canon -->
           <section class="section-card" data-section-type="core">
             <div class="section-header">
@@ -518,7 +545,7 @@
           </section>
 
           <!-- Secondary Canon -->
-          <section class="section-card expanded-hidden" data-section-type="secondary">
+          <section class="section-card" data-section-type="secondary">
             <div class="section-header">
               <div>
                 <div class="section-title">
@@ -597,7 +624,7 @@
           </section>
 
           <!-- Buddhist Canon -->
-          <section class="section-card expanded-hidden" data-section-type="buddhist">
+          <section class="section-card" data-section-type="buddhist">
             <div class="section-header">
               <div>
                 <div class="section-title">
@@ -641,7 +668,7 @@
           </section>
 
           <!-- Thinkers on Thinking -->
-          <section class="section-card expanded-hidden" data-section-type="thinking">
+          <section class="section-card" data-section-type="thinking">
             <div class="section-header">
               <div>
                 <div class="section-title">
@@ -712,7 +739,7 @@
                   <span class="tag">Your Structure</span>
                 </div>
                 <div class="section-subtitle">
-                  Build your own layered reading order. Use groups for Core, Secondary, Tertiary, or anything you want.
+                  Build your own layered reading order. Use lists for Core, Secondary, Tertiary, or anything you want.
                 </div>
               </div>
             </div>
@@ -744,7 +771,7 @@
 
     <div class="footer-note">
       Tip: if you want a custom item to sync with a Rensei Canon book, give it the same
-      <code>ID</code> (shown in the hover popup). Adding from the Rensei list will do this automatically.
+      <code>ID</code> (shown in the hover popup). Adding from the Rensei list will do this automatically as long as it is not already in one of your lists.
     </div>
   </div>
 
@@ -758,19 +785,23 @@
     (function () {
       const STORAGE_PROGRESS_KEY = "renseiCanonProgressV1";
       const STORAGE_CUSTOM_KEY = "renseiCustomCanonV2"; // new shape
+      const STORAGE_UI_KEY = "renseiCanonUiV1";
 
       const resetBtn = document.getElementById("resetProgressBtn");
-      const progressCountEl = document.getElementById("progressCount");
-      const progressTotalEl = document.getElementById("progressTotal");
+      const progressCountGlobalEl = document.getElementById("progressCountGlobal");
+      const progressTotalGlobalEl = document.getElementById("progressTotalGlobal");
+      const progressCountViewEl = document.getElementById("progressCountView");
+      const progressTotalViewEl = document.getElementById("progressTotalView");
       const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
       const toggleExpandedBtn = document.getElementById("toggleExpandedBtn");
       const renseiView = document.getElementById("renseiView");
       const customView = document.getElementById("customView");
-      const appShell = document.querySelector(".app-shell");
       const tooltipEl = document.getElementById("hoverTooltip");
       const tooltipTitleEl = tooltipEl.querySelector(".tooltip-title");
       const tooltipBodyEl = tooltipEl.querySelector(".tooltip-body");
       const tooltipIdEl = tooltipEl.querySelector(".tooltip-id");
+      const expandedPathSection = document.getElementById("expandedPathSection");
+      const expandedPathList = document.getElementById("expandedPathList");
 
       const newGroupTitleInput = document.getElementById("newGroupTitleInput");
       const newGroupTypeSelect = document.getElementById("newGroupTypeSelect");
@@ -844,8 +875,6 @@
           "History and flavor of Zen with Watts’ playful, sharp commentary.",
         "alain-de-botton-consolations-of-philosophy":
           "How classic philosophers can soothe everyday modern pains.",
-        "bhikkhu-bodhi-in-the-buddhas-words":
-          "Organized translations of key Buddha discourses with commentary.",
         "pema-when-things-fall-apart":
           "How to work with fear, heartbreak, and uncertainty in a Buddhist frame.",
         "shinzen-science-of-enlightenment":
@@ -874,6 +903,12 @@
 
       function getAllCheckboxes() {
         return Array.from(document.querySelectorAll('input[type="checkbox"][data-book-id]'));
+      }
+
+      function getViewCheckboxes(viewId) {
+        const view = document.getElementById(viewId);
+        if (!view) return [];
+        return Array.from(view.querySelectorAll('input[type="checkbox"][data-book-id]'));
       }
 
       function loadProgressState() {
@@ -943,6 +978,27 @@
           localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(groups));
         } catch (e) {
           console.warn("Failed to save custom state:", e);
+        }
+      }
+
+      function loadUiState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_UI_KEY);
+          if (!raw) return { expanded: false };
+          const parsed = JSON.parse(raw);
+          return {
+            expanded: !!parsed.expanded
+          };
+        } catch (e) {
+          return { expanded: false };
+        }
+      }
+
+      function saveUiState(state) {
+        try {
+          localStorage.setItem(STORAGE_UI_KEY, JSON.stringify(state));
+        } catch (e) {
+          console.warn("Failed to save UI state:", e);
         }
       }
 
@@ -1075,6 +1131,12 @@
             downBtn.dataset.action = "down-item";
             downBtn.textContent = "▼";
 
+            const duplicateBtn = document.createElement("button");
+            duplicateBtn.type = "button";
+            duplicateBtn.className = "mini-btn";
+            duplicateBtn.dataset.action = "duplicate-item";
+            duplicateBtn.textContent = "Copy";
+
             const delBtn = document.createElement("button");
             delBtn.type = "button";
             delBtn.className = "mini-btn danger";
@@ -1083,6 +1145,7 @@
 
             controls.appendChild(upBtn);
             controls.appendChild(downBtn);
+            controls.appendChild(duplicateBtn);
             controls.appendChild(delBtn);
 
             li.appendChild(cb);
@@ -1103,6 +1166,7 @@
         attachCheckboxListeners(progressState);
         updateProgressDisplay();
         wireRenseiHoverAndAddButtons(customGroups);
+        buildExpandedPath();
       }
 
       function applyProgressToUI(state) {
@@ -1121,16 +1185,32 @@
         checkboxes.forEach((cb) => uniqueIds.add(cb.dataset.bookId));
         const totalUnique = uniqueIds.size;
 
-        let completed = 0;
+        let completedGlobal = 0;
         uniqueIds.forEach((id) => {
           const group = getAllCheckboxes().filter((cb) => cb.dataset.bookId === id);
           if (group.some((cb) => cb.checked)) {
-            completed += 1;
+            completedGlobal += 1;
           }
         });
 
-        if (progressTotalEl) progressTotalEl.textContent = String(totalUnique);
-        if (progressCountEl) progressCountEl.textContent = String(completed);
+        if (progressTotalGlobalEl) progressTotalGlobalEl.textContent = String(totalUnique);
+        if (progressCountGlobalEl) progressCountGlobalEl.textContent = String(completedGlobal);
+
+        // Current view stats
+        const activeView = document.querySelector(".view.active");
+        if (!activeView) return;
+        const viewId = activeView.id;
+        const viewCheckboxes = getViewCheckboxes(viewId);
+        const viewIds = new Set(viewCheckboxes.map((cb) => cb.dataset.bookId));
+        let completedView = 0;
+        viewIds.forEach((id) => {
+          const group = viewCheckboxes.filter((cb) => cb.dataset.bookId === id);
+          if (group.some((cb) => cb.checked)) {
+            completedView += 1;
+          }
+        });
+        if (progressTotalViewEl) progressTotalViewEl.textContent = String(viewIds.size);
+        if (progressCountViewEl) progressCountViewEl.textContent = String(completedView);
       }
 
       function syncGroup(bookId, checked, state) {
@@ -1186,37 +1266,58 @@
         tooltipEl.style.display = "none";
       }
 
+      function bookIdExistsInCustom(bookId, customGroups) {
+        for (const g of customGroups) {
+          for (const it of g.items) {
+            if (it.id === bookId) return true;
+          }
+        }
+        return false;
+      }
+
       function wireRenseiHoverAndAddButtons(customGroups) {
         const items = renseiView.querySelectorAll(".check-item");
         items.forEach((li) => {
-          if (li._renseiHoverBound) return;
-          li._renseiHoverBound = true;
-
           const cb = li.querySelector('input[data-book-id]');
           const label = li.querySelector("label");
           if (!cb || !label) return;
           const bookId = cb.dataset.bookId;
           const title = label.textContent.trim();
 
-          li.addEventListener("mouseenter", (e) => showTooltip(e, bookId, title));
-          li.addEventListener("mousemove", (e) => positionTooltip(e));
-          li.addEventListener("mouseleave", hideTooltip);
+          if (!li._renseiHoverBound) {
+            li._renseiHoverBound = true;
+            li.addEventListener("mouseenter", (e) => showTooltip(e, bookId, title));
+            li.addEventListener("mousemove", (e) => positionTooltip(e));
+            li.addEventListener("mouseleave", hideTooltip);
+          }
 
-          // Add "Add" button for custom canon
-          const addBtn = document.createElement("button");
-          addBtn.type = "button";
-          addBtn.className = "mini-btn";
-          addBtn.textContent = "Add";
-          addBtn.title = "Add to Custom Canon (first list)";
-          addBtn.addEventListener("click", () => {
-            addCustomItemFromRensei(bookId, title, customGroups);
-          });
+          // ensure only one add button and keep its disabled state based on whether it's in custom
+          let addBtn = li.querySelector("button[data-role='add-to-custom']");
+          if (!addBtn) {
+            addBtn = document.createElement("button");
+            addBtn.type = "button";
+            addBtn.className = "mini-btn";
+            addBtn.dataset.role = "add-to-custom";
+            addBtn.textContent = "Add";
+            addBtn.title = "Add to Custom Canon (first list)";
+            addBtn.addEventListener("click", () => {
+              addCustomItemFromRensei(bookId, title, customGroups);
+            });
+            li.appendChild(addBtn);
+          }
 
-          li.appendChild(addBtn);
+          const already = bookIdExistsInCustom(bookId, customGroups);
+          addBtn.disabled = already;
+          addBtn.title = already
+            ? "Already in your custom lists"
+            : "Add to Custom Canon (first list)";
         });
       }
 
       function addCustomItemFromRensei(bookId, title, customGroups) {
+        if (bookIdExistsInCustom(bookId, customGroups)) {
+          return;
+        }
         if (!customGroups.length) {
           customGroups.push({
             id: "my-list",
@@ -1226,18 +1327,14 @@
           });
         }
         const targetGroup = customGroups[0];
-        const existingIds = new Set();
-        customGroups.forEach((g) => g.items.forEach((it) => existingIds.add(it.id)));
-        existingIds.add(bookId);
-        const uniqueId = ensureUniqueId(bookId, existingIds);
-        targetGroup.items.push({ id: uniqueId, title: title });
+        targetGroup.items.push({ id: bookId, title: title });
         saveCustomState(customGroups);
         renderCustomGroups(customGroups, progressStateRef);
         applyProgressToUI(progressStateRef);
         updateProgressDisplay();
       }
 
-      function attachGlobalListeners(progressState, customGroups) {
+      function attachGlobalListeners(progressState, customGroups, uiState) {
         // Reset button
         if (resetBtn) {
           resetBtn.addEventListener("click", () => {
@@ -1259,23 +1356,22 @@
             if (view === "rensei") {
               renseiView.classList.add("active");
               customView.classList.remove("active");
-              toggleExpandedBtn.classList.remove("hidden");
             } else {
               customView.classList.add("active");
               renseiView.classList.remove("active");
-              toggleExpandedBtn.classList.add("hidden");
               hideTooltip();
             }
+            updateProgressDisplay();
           });
         });
 
         // Expanded toggle
         if (toggleExpandedBtn) {
           toggleExpandedBtn.addEventListener("click", () => {
-            const isExpanded = document.body.classList.toggle("expanded-mode");
-            toggleExpandedBtn.classList.toggle("active", isExpanded);
-            const label = toggleExpandedBtn.querySelector(".label");
-            if (label) label.textContent = "Expanded view: " + (isExpanded ? "on" : "off");
+            const newState = !uiState.expanded;
+            uiState.expanded = newState;
+            setExpandedMode(newState);
+            saveUiState(uiState);
           });
         }
 
@@ -1301,7 +1397,7 @@
           });
         }
 
-        // Custom groups delegation (rename/delete group, add/up/down/delete item)
+        // Custom groups delegation (rename/delete group, add/up/down/duplicate/delete item)
         customGroupsContainer.addEventListener("click", (evt) => {
           const btn = evt.target.closest("button");
           if (!btn) return;
@@ -1350,12 +1446,14 @@
               return;
             }
 
-            const existingIds = new Set();
-            customGroups.forEach((g) => g.items.forEach((it) => existingIds.add(it.id)));
-            const baseId = id || ("custom-" + slugify(title));
-            const uniqueId = ensureUniqueId(baseId, existingIds);
+            if (!id) {
+              const existingIds = new Set();
+              customGroups.forEach((g) => g.items.forEach((it) => existingIds.add(it.id)));
+              const baseId = "custom-" + slugify(title);
+              id = ensureUniqueId(baseId, existingIds);
+            }
 
-            customGroups[gIndex].items.push({ id: uniqueId, title });
+            customGroups[gIndex].items.push({ id, title });
             saveCustomState(customGroups);
             renderCustomGroups(customGroups, progressState);
             applyProgressToUI(progressState);
@@ -1390,6 +1488,26 @@
               customGroups[gIndex].items[iIndex + 1] = customGroups[gIndex].items[iIndex];
               customGroups[gIndex].items[iIndex] = tmp;
             }
+          } else if (action === "duplicate-item") {
+            const item = customGroups[gIndex].items[iIndex];
+            if (!item) return;
+            if (!customGroups.length) return;
+            if (customGroups.length === 1) {
+              alert("You only have one list. Add another list first, then you can copy items into it.");
+              return;
+            }
+            const options = customGroups
+              .map((g, idx) => idx === gIndex ? null : (idx + 1) + ": " + g.title)
+              .filter(Boolean)
+              .join("\n");
+            const answer = prompt("Copy to which list?\n" + options + "\n(Enter the number)", "");
+            if (!answer) return;
+            const targetIdx = parseInt(answer, 10) - 1;
+            if (isNaN(targetIdx) || targetIdx < 0 || targetIdx >= customGroups.length || targetIdx === gIndex) {
+              alert("Invalid selection.");
+              return;
+            }
+            customGroups[targetIdx].items.push({ id: item.id, title: item.title });
           }
 
           saveCustomState(customGroups);
@@ -1399,9 +1517,65 @@
         });
       }
 
+      function buildExpandedPath() {
+        if (!expandedPathList) return;
+        expandedPathList.innerHTML = "";
+        const sections = [
+          renseiView.querySelector('[data-section-type="core"] .checklist'),
+          renseiView.querySelector('[data-section-type="secondary"] .checklist'),
+          renseiView.querySelector('[data-section-type="buddhist"] .checklist'),
+          renseiView.querySelector('[data-section-type="thinking"] .checklist')
+        ].filter(Boolean);
+
+        const seen = new Set();
+        sections.forEach((ul) => {
+          const items = Array.from(ul.querySelectorAll(".check-item"));
+          items.forEach((srcLi) => {
+            const cb = srcLi.querySelector('input[data-book-id]');
+            const label = srcLi.querySelector("label");
+            if (!cb || !label) return;
+            const bookId = cb.dataset.bookId;
+            if (seen.has(bookId)) return;
+            seen.add(bookId);
+
+            const li = document.createElement("li");
+            li.className = "check-item";
+
+            const cloneCb = document.createElement("input");
+            cloneCb.type = "checkbox";
+            cloneCb.dataset.bookId = bookId;
+            const tempId = "expanded-" + bookId;
+            cloneCb.id = tempId;
+
+            const labelEl = document.createElement("label");
+            labelEl.setAttribute("for", tempId);
+            labelEl.textContent = label.textContent.trim();
+
+            li.appendChild(cloneCb);
+            li.appendChild(labelEl);
+
+            expandedPathList.appendChild(li);
+          });
+        });
+
+        // After building, reapply progress + listeners so they sync
+        attachCheckboxListeners(progressStateRef);
+        applyProgressToUI(progressStateRef);
+        updateProgressDisplay();
+      }
+
+      function setExpandedMode(on) {
+        if (!expandedPathSection || !toggleExpandedBtn) return;
+        expandedPathSection.classList.toggle("hidden", !on);
+        toggleExpandedBtn.classList.toggle("active", on);
+        const label = toggleExpandedBtn.querySelector(".label");
+        if (label) label.textContent = "Expanded path: " + (on ? "on" : "off");
+      }
+
       // Initial boot
       const progressStateRef = loadProgressState();
       const customGroupsRef = loadCustomState();
+      const uiStateRef = loadUiState();
 
       // Render custom groups
       renderCustomGroups(customGroupsRef, progressStateRef);
@@ -1409,8 +1583,13 @@
       applyProgressToUI(progressStateRef);
       // Attach listeners
       attachCheckboxListeners(progressStateRef);
-      attachGlobalListeners(progressStateRef, customGroupsRef);
+      attachGlobalListeners(progressStateRef, customGroupsRef, uiStateRef);
+      // Expanded path initial
+      buildExpandedPath();
+      setExpandedMode(uiStateRef.expanded);
+      // Initial progress display
       updateProgressDisplay();
+      // Wire hover + add buttons
       wireRenseiHoverAndAddButtons(customGroupsRef);
     })();
   </script>
