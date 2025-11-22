@@ -138,6 +138,26 @@
       background: rgba(25, 32, 60, 0.95);
       color: var(--accent);
     }
+    .toggle-chip {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(8, 12, 30, 0.9);
+      color: var(--text-muted);
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-left: auto;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .toggle-chip span.icon { font-size: 0.95rem; }
+    .toggle-chip.active {
+      background: rgba(25, 32, 60, 0.95);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
     main { margin-top: 18px; }
     .view { display: none; }
     .view.active { display: block; }
@@ -227,77 +247,6 @@
       color: var(--text-muted);
       white-space: nowrap;
     }
-    details.expansion {
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      background: rgba(4, 7, 20, 0.8);
-      padding: 6px 8px 6px;
-    }
-    details.expansion summary {
-      cursor: pointer;
-      list-style: none;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 6px;
-      color: var(--text-main);
-    }
-    details.expansion summary::-webkit-details-marker { display: none; }
-    .summary-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .summary-label span.core-ref {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .summary-chevron {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      transition: transform 0.12s ease;
-    }
-    details.expansion[open] .summary-chevron { transform: rotate(90deg); }
-    .expansion-inner {
-      margin-top: 6px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 6px;
-      display: grid;
-      gap: 4px;
-    }
-    .expansion-group-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-    .footer-note {
-      margin-top: 14px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .custom-input-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .custom-input-row input[type="text"] {
-      flex: 1;
-      min-width: 180px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: rgba(5, 8, 22, 0.9);
-      color: var(--text-main);
-      font-size: 0.85rem;
-      outline: none;
-    }
-    .custom-input-row input[type="text"]::placeholder {
-      color: var(--text-muted);
-    }
     .mini-btn {
       border: 1px solid rgba(255, 255, 255, 0.08);
       background: rgba(10, 14, 32, 0.9);
@@ -330,6 +279,86 @@
       gap: 4px;
       margin-left: 4px;
     }
+    .footer-note {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .custom-input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .custom-input-row input[type="text"],
+    .custom-input-row select {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(5, 8, 22, 0.9);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .custom-input-row input[type="text"] {
+      flex: 1;
+      min-width: 160px;
+    }
+    .custom-input-row input[type="text"]::placeholder {
+      color: var(--text-muted);
+    }
+    .custom-input-row select {
+      min-width: 110px;
+    }
+    .custom-groups-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .custom-group .section-header {
+      align-items: center;
+    }
+    .custom-group-type-tag {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .tooltip {
+      position: fixed;
+      max-width: 280px;
+      background: rgba(6, 10, 26, 0.97);
+      border-radius: 12px;
+      border: 1px solid rgba(109, 211, 255, 0.5);
+      padding: 8px 10px 6px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.65);
+      font-size: 0.8rem;
+      z-index: 9999;
+      pointer-events: none;
+      display: none;
+    }
+    .tooltip-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .tooltip-body {
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .tooltip-id {
+      text-align: right;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.7rem;
+      color: #7bd6ff;
+    }
+    .hidden { display: none !important; }
+    .condensed-only { display: none; }
+    .expanded-mode .condensed-only { display: inline-flex; }
+    .expanded-mode .expanded-hidden { display: none !important; }
+
     @media (min-width: 768px) {
       .app-shell { padding: 32px 24px 52px; }
       header h1 { font-size: 2rem; }
@@ -368,6 +397,10 @@
             <span>Custom Canon</span>
           </button>
         </div>
+        <button type="button" class="toggle-chip expanded-hidden" id="toggleExpandedBtn">
+          <span class="icon">⤢</span>
+          <span class="label">Expanded view: off</span>
+        </button>
       </div>
     </header>
 
@@ -376,7 +409,7 @@
       <div class="view active" id="renseiView">
         <div class="view-sections">
           <!-- Core Canon -->
-          <section class="section-card">
+          <section class="section-card" data-section-type="core">
             <div class="section-header">
               <div>
                 <div class="section-title">
@@ -485,7 +518,7 @@
           </section>
 
           <!-- Secondary Canon -->
-          <section class="section-card">
+          <section class="section-card expanded-hidden" data-section-type="secondary">
             <div class="section-header">
               <div>
                 <div class="section-title">
@@ -564,7 +597,7 @@
           </section>
 
           <!-- Buddhist Canon -->
-          <section class="section-card">
+          <section class="section-card expanded-hidden" data-section-type="buddhist">
             <div class="section-header">
               <div>
                 <div class="section-title">
@@ -608,7 +641,7 @@
           </section>
 
           <!-- Thinkers on Thinking -->
-          <section class="section-card">
+          <section class="section-card expanded-hidden" data-section-type="thinking">
             <div class="section-header">
               <div>
                 <div class="section-title">
@@ -676,28 +709,33 @@
               <div>
                 <div class="section-title">
                   Custom Canon
-                  <span class="tag">Your Order</span>
+                  <span class="tag">Your Structure</span>
                 </div>
                 <div class="section-subtitle">
-                  Build your own reading order. You can optionally link items to Rensei IDs so progress syncs.
+                  Build your own layered reading order. Use groups for Core, Secondary, Tertiary, or anything you want.
                 </div>
               </div>
             </div>
             <div class="section-body">
               <div class="custom-input-row">
-                <input type="text" id="customTitleInput" placeholder="Book title (e.g., Jung – Man and His Symbols)" />
-                <input type="text" id="customIdInput" placeholder="Optional ID to sync (e.g., jung-man-and-his-symbols)" />
-                <button type="button" class="pill-button" id="customAddBtn">
-                  <span class="icon">➕</span>
-                  <span>Add</span>
+                <input type="text" id="newGroupTitleInput" placeholder="New list title (e.g., My Core Path)" />
+                <select id="newGroupTypeSelect">
+                  <option value="core">Core</option>
+                  <option value="secondary">Secondary</option>
+                  <option value="tertiary">Tertiary</option>
+                  <option value="other">Other</option>
+                </select>
+                <button type="button" class="pill-button" id="addGroupBtn">
+                  <span class="icon">📂</span>
+                  <span>Add list</span>
                 </button>
               </div>
               <div class="list-group-label">
-                Your list
+                Your lists
               </div>
-              <ul class="checklist" id="customList">
-                <!-- dynamically populated -->
-              </ul>
+              <div class="custom-groups-container" id="customGroupsContainer">
+                <!-- groups are rendered here -->
+              </div>
             </div>
           </section>
         </div>
@@ -706,26 +744,133 @@
 
     <div class="footer-note">
       Tip: if you want a custom item to sync with a Rensei Canon book, give it the same
-      <code>ID</code> (for example <code>jung-man-and-his-symbols</code>). Otherwise a new ID is created.
+      <code>ID</code> (shown in the hover popup). Adding from the Rensei list will do this automatically.
     </div>
+  </div>
+
+  <div id="hoverTooltip" class="tooltip">
+    <div class="tooltip-title"></div>
+    <div class="tooltip-body"></div>
+    <div class="tooltip-id"></div>
   </div>
 
   <script>
     (function () {
       const STORAGE_PROGRESS_KEY = "renseiCanonProgressV1";
-      const STORAGE_CUSTOM_KEY = "renseiCustomCanonV1";
+      const STORAGE_CUSTOM_KEY = "renseiCustomCanonV2"; // new shape
 
       const resetBtn = document.getElementById("resetProgressBtn");
       const progressCountEl = document.getElementById("progressCount");
       const progressTotalEl = document.getElementById("progressTotal");
       const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
+      const toggleExpandedBtn = document.getElementById("toggleExpandedBtn");
       const renseiView = document.getElementById("renseiView");
       const customView = document.getElementById("customView");
+      const appShell = document.querySelector(".app-shell");
+      const tooltipEl = document.getElementById("hoverTooltip");
+      const tooltipTitleEl = tooltipEl.querySelector(".tooltip-title");
+      const tooltipBodyEl = tooltipEl.querySelector(".tooltip-body");
+      const tooltipIdEl = tooltipEl.querySelector(".tooltip-id");
 
-      const customTitleInput = document.getElementById("customTitleInput");
-      const customIdInput = document.getElementById("customIdInput");
-      const customAddBtn = document.getElementById("customAddBtn");
-      const customListEl = document.getElementById("customList");
+      const newGroupTitleInput = document.getElementById("newGroupTitleInput");
+      const newGroupTypeSelect = document.getElementById("newGroupTypeSelect");
+      const addGroupBtn = document.getElementById("addGroupBtn");
+      const customGroupsContainer = document.getElementById("customGroupsContainer");
+
+      const DESCRIPTIONS = {
+        "jung-man-and-his-symbols":
+          "Jung in plain language on dreams, symbols, and how the unconscious talks to you.",
+        "frankl-mans-search-for-meaning":
+          "Logotherapy and the question of meaning under extreme suffering, framed through Frankl’s camp experience.",
+        "dostoevsky-notes-from-underground":
+          "A spiteful narrator dismantling rational-ego models and exposing wounded pride and resentment.",
+        "dostoevsky-crime-and-punishment":
+          "A murder, an idea about greatness, and the slow crushing weight of conscience and redemption.",
+        "fromm-escape-from-freedom":
+          "Why modern people run from real freedom into conformity, authority, or destructiveness.",
+        "nietzsche-beyond-good-and-evil":
+          "Nietzsche tearing apart inherited morals and asking what lies behind our values.",
+        "camus-myth-of-sisyphus":
+          "Absurdity, suicide, and why continuing to live can be an act of defiant meaning-making.",
+        "kierkegaard-sickness-unto-death":
+          "A deep dive into despair as a misalignment of self, faith, and the infinite.",
+        "arendt-human-condition":
+          "Action, labor, and work in the modern world; what it means to appear and act in public.",
+        "sun-tzu-art-of-war":
+          "Compact principles of strategy and deception in conflict that generalize far beyond war.",
+        "musashi-book-of-five-rings":
+          "A swordsman’s distilled notes on timing, stance, and mindset in life-and-death combat.",
+        "takuan-unfettered-mind":
+          "Zen letters to a swordsman on non-attachment, attention, and letting the mind move freely.",
+        "machiavelli-the-prince":
+          "Cold analysis of power: how rulers actually behave when survival is at stake.",
+        "marcus-aurelius-meditations":
+          "A Roman emperor’s private Stoic journal on control, duty, and staying decent in chaos.",
+        "tsunetomo-hagakure":
+          "Samurai reflections on death, loyalty, and decisive action; romanticized but sharp about commitment.",
+        "thich-nhat-hanh-miracle-of-mindfulness":
+          "Gentle, practical training in moment-to-moment awareness in daily life.",
+        "text-dhammapada":
+          "Canonical verses summarizing core Buddhist ethics, mind-training, and wisdom.",
+        "alan-watts-wisdom-of-insecurity":
+          "How clinging to psychological security creates anxiety, and what it means to rest in the present.",
+        "jung-modern-man-in-search-of-a-soul":
+          "Essays detailing Jung’s approach to analysis, dreams, and the modern psyche.",
+        "campbell-hero-with-a-thousand-faces":
+          "The monomyth pattern behind myths and stories across cultures.",
+        "hesse-steppenwolf":
+          "An internal war between bourgeois respectability and wild, fragmented inner life.",
+        "rilke-letters-to-a-young-poet":
+          "Letters on art, solitude, and becoming yourself, written to an aspiring poet.",
+        "weber-protestant-ethic":
+          "How religious ideas helped shape modern capitalism and the work ethic.",
+        "arendt-between-past-and-future":
+          "Key political essays on authority, freedom, and thinking in dark times.",
+        "fromm-art-of-loving":
+          "Love treated as a skillful practice, not just a feeling or accident.",
+        "seneca-letters-from-a-stoic":
+          "Stoic advice on anger, time, wealth, and tranquility in letter form.",
+        "epictetus-enchiridion":
+          "A compact manual on focusing on what you can control and letting go of the rest.",
+        "shunryu-suzuki-zen-mind-beginner-mind":
+          "Short talks on Zen practice and keeping a fresh, non-grasping mind.",
+        "thich-nhat-hanh-peace-is-every-step":
+          "Mindfulness practices woven into walking, breathing, and daily life encounters.",
+        "bhikkhu-bodhi-in-the-buddhas-words":
+          "Organized translations of key Buddha discourses with commentary.",
+        "jack-kornfield-path-with-heart":
+          "Integrating meditation, therapy, and messy human life on a long-term spiritual path.",
+        "alan-watts-way-of-zen":
+          "History and flavor of Zen with Watts’ playful, sharp commentary.",
+        "alain-de-botton-consolations-of-philosophy":
+          "How classic philosophers can soothe everyday modern pains.",
+        "bhikkhu-bodhi-in-the-buddhas-words":
+          "Organized translations of key Buddha discourses with commentary.",
+        "pema-when-things-fall-apart":
+          "How to work with fear, heartbreak, and uncertainty in a Buddhist frame.",
+        "shinzen-science-of-enlightenment":
+          "A technical but accessible breakdown of meditation mechanics and altered states.",
+        "einstein-ideas-and-opinions":
+          "Einstein’s essays on science, politics, and the creative process.",
+        "tesla-my-inventions":
+          "Tesla’s autobiographical sketch of how his mind works and how his ideas came.",
+        "feynman-pleasure-of-finding-things-out":
+          "Talks and interviews about curiosity, doubt, and the joy of discovery.",
+        "feynman-surely-youre-joking":
+          "Anecdotes revealing Feynman’s playful, rule-bending way of thinking.",
+        "poincare-science-and-method":
+          "Reflections on mathematical creativity and the role of the unconscious.",
+        "hadamard-psychology-of-invention":
+          "Classic study of how mathematicians actually experience insight.",
+        "polya-how-to-solve-it":
+          "General toolkit for attacking problems systematically and creatively.",
+        "dewey-how-we-think":
+          "Early cognitive science: how reflective thought and inquiry actually unfold.",
+        "herbert-simon-sciences-of-the-artificial":
+          "Design and complex systems; how we create and reason about artifacts.",
+        "kahneman-thinking-fast-and-slow":
+          "Two-system model of thought, biases, and why intuition fails or succeeds."
+      };
 
       function getAllCheckboxes() {
         return Array.from(document.querySelectorAll('input[type="checkbox"][data-book-id]'));
@@ -754,24 +899,55 @@
         try {
           const raw = localStorage.getItem(STORAGE_CUSTOM_KEY);
           if (!raw) return [];
-          const list = JSON.parse(raw);
-          return Array.isArray(list) ? list : [];
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+
+          // Migration: if it looks like old simple item array, wrap into one group
+          if (parsed.length && parsed[0] && !parsed[0].items) {
+            const items = parsed.map((it) => {
+              if (typeof it === "string") {
+                return { id: "migrated-" + slugify(it), title: it };
+              }
+              return { id: it.id || ("migrated-" + slugify(it.title || "")), title: it.title || "Untitled" };
+            });
+            return [
+              {
+                id: "my-list",
+                title: "My List",
+                type: "other",
+                items
+              }
+            ];
+          }
+
+          // Otherwise assume new shape
+          return parsed.map((g) => ({
+            id: g.id || ("group-" + Math.random().toString(36).slice(2)),
+            title: g.title || "Untitled",
+            type: g.type || "other",
+            items: Array.isArray(g.items)
+              ? g.items.map((it) => ({
+                  id: it.id || ("item-" + Math.random().toString(36).slice(2)),
+                  title: it.title || "Untitled"
+                }))
+              : []
+          }));
         } catch (e) {
-          console.warn("Failed to parse custom list:", e);
+          console.warn("Failed to parse custom state:", e);
           return [];
         }
       }
 
-      function saveCustomState(list) {
+      function saveCustomState(groups) {
         try {
-          localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(list));
+          localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(groups));
         } catch (e) {
-          console.warn("Failed to save custom list:", e);
+          console.warn("Failed to save custom state:", e);
         }
       }
 
       function slugify(text) {
-        return text
+        return (text || "")
           .toLowerCase()
           .trim()
           .replace(/[^a-z0-9]+/g, "-")
@@ -788,59 +964,145 @@
         return id;
       }
 
-      function renderCustomList(customItems, progressState) {
-        customListEl.innerHTML = "";
-        const existingIds = new Set(customItems.map((it) => it.id));
+      function renderCustomGroups(customGroups, progressState) {
+        customGroupsContainer.innerHTML = "";
+        customGroups.forEach((group, gIndex) => {
+          const card = document.createElement("div");
+          card.className = "section-card custom-group";
+          card.dataset.groupIndex = String(gIndex);
 
-        customItems.forEach((item, index) => {
-          const li = document.createElement("li");
-          li.className = "check-item";
-          li.dataset.itemIndex = String(index);
-          li.dataset.bookId = item.id;
+          const header = document.createElement("div");
+          header.className = "section-header";
 
-          const cb = document.createElement("input");
-          cb.type = "checkbox";
-          cb.dataset.bookId = item.id;
-          cb.id = "custom-book-" + index;
-          cb.checked = !!progressState[item.id];
+          const titleWrap = document.createElement("div");
+          const titleRow = document.createElement("div");
+          titleRow.className = "section-title";
+          const titleSpan = document.createElement("span");
+          titleSpan.textContent = group.title;
+          const typeTag = document.createElement("span");
+          typeTag.className = "custom-group-type-tag";
+          typeTag.textContent = group.type;
+          titleRow.appendChild(titleSpan);
+          titleRow.appendChild(typeTag);
+          titleWrap.appendChild(titleRow);
 
-          const label = document.createElement("label");
-          label.setAttribute("for", cb.id);
-          label.textContent = item.title;
+          const headerControls = document.createElement("div");
+          headerControls.className = "custom-controls";
 
-          const controls = document.createElement("div");
-          controls.className = "custom-controls";
+          const renameBtn = document.createElement("button");
+          renameBtn.type = "button";
+          renameBtn.className = "mini-btn";
+          renameBtn.dataset.action = "rename-group";
+          renameBtn.textContent = "Rename";
 
-          const upBtn = document.createElement("button");
-          upBtn.type = "button";
-          upBtn.className = "mini-btn";
-          upBtn.dataset.action = "up";
-          upBtn.innerHTML = "▲";
+          const deleteBtn = document.createElement("button");
+          deleteBtn.type = "button";
+          deleteBtn.className = "mini-btn danger";
+          deleteBtn.dataset.action = "delete-group";
+          deleteBtn.textContent = "Delete";
 
-          const downBtn = document.createElement("button");
-          downBtn.type = "button";
-          downBtn.className = "mini-btn";
-          downBtn.dataset.action = "down";
-          downBtn.innerHTML = "▼";
+          headerControls.appendChild(renameBtn);
+          headerControls.appendChild(deleteBtn);
 
-          const delBtn = document.createElement("button");
-          delBtn.type = "button";
-          delBtn.className = "mini-btn danger";
-          delBtn.dataset.action = "delete";
-          delBtn.innerHTML = "✕";
+          header.appendChild(titleWrap);
+          header.appendChild(headerControls);
 
-          controls.appendChild(upBtn);
-          controls.appendChild(downBtn);
-          controls.appendChild(delBtn);
+          const body = document.createElement("div");
+          body.className = "section-body";
 
-          li.appendChild(cb);
-          li.appendChild(label);
-          li.appendChild(controls);
-          customListEl.appendChild(li);
+          const inputRow = document.createElement("div");
+          inputRow.className = "custom-input-row";
+
+          const titleInput = document.createElement("input");
+          titleInput.type = "text";
+          titleInput.placeholder = "Book title for this list";
+          titleInput.dataset.role = "item-title-input";
+          titleInput.dataset.groupIndex = String(gIndex);
+
+          const idInput = document.createElement("input");
+          idInput.type = "text";
+          idInput.placeholder = "Optional ID (for sync)";
+          idInput.dataset.role = "item-id-input";
+          idInput.dataset.groupIndex = String(gIndex);
+
+          const addItemBtn = document.createElement("button");
+          addItemBtn.type = "button";
+          addItemBtn.className = "pill-button";
+          addItemBtn.dataset.action = "add-item";
+          addItemBtn.dataset.groupIndex = String(gIndex);
+          addItemBtn.innerHTML = '<span class="icon">➕</span><span>Add</span>';
+
+          inputRow.appendChild(titleInput);
+          inputRow.appendChild(idInput);
+          inputRow.appendChild(addItemBtn);
+
+          const listLabel = document.createElement("div");
+          listLabel.className = "list-group-label";
+          listLabel.textContent = "Items";
+
+          const list = document.createElement("ul");
+          list.className = "checklist";
+          list.dataset.groupIndex = String(gIndex);
+
+          group.items.forEach((item, iIndex) => {
+            const li = document.createElement("li");
+            li.className = "check-item";
+            li.dataset.groupIndex = String(gIndex);
+            li.dataset.itemIndex = String(iIndex);
+
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.dataset.bookId = item.id;
+            cb.id = "custom-" + gIndex + "-" + iIndex;
+            cb.checked = !!progressState[item.id];
+
+            const label = document.createElement("label");
+            label.setAttribute("for", cb.id);
+            label.textContent = item.title;
+
+            const controls = document.createElement("div");
+            controls.className = "custom-controls";
+
+            const upBtn = document.createElement("button");
+            upBtn.type = "button";
+            upBtn.className = "mini-btn";
+            upBtn.dataset.action = "up-item";
+            upBtn.textContent = "▲";
+
+            const downBtn = document.createElement("button");
+            downBtn.type = "button";
+            downBtn.className = "mini-btn";
+            downBtn.dataset.action = "down-item";
+            downBtn.textContent = "▼";
+
+            const delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.className = "mini-btn danger";
+            delBtn.dataset.action = "delete-item";
+            delBtn.textContent = "✕";
+
+            controls.appendChild(upBtn);
+            controls.appendChild(downBtn);
+            controls.appendChild(delBtn);
+
+            li.appendChild(cb);
+            li.appendChild(label);
+            li.appendChild(controls);
+            list.appendChild(li);
+          });
+
+          body.appendChild(inputRow);
+          body.appendChild(listLabel);
+          body.appendChild(list);
+
+          card.appendChild(header);
+          card.appendChild(body);
+          customGroupsContainer.appendChild(card);
         });
 
         attachCheckboxListeners(progressState);
         updateProgressDisplay();
+        wireRenseiHoverAndAddButtons(customGroups);
       }
 
       function applyProgressToUI(state) {
@@ -891,7 +1153,91 @@
         });
       }
 
-      function attachGlobalListeners(progressState, customState) {
+      function showTooltip(e, bookId, title) {
+        const desc = DESCRIPTIONS[bookId] || "No description saved yet.";
+        tooltipTitleEl.textContent = title || "";
+        tooltipBodyEl.textContent = desc;
+        tooltipIdEl.textContent = "ID: " + bookId;
+        tooltipEl.style.display = "block";
+        positionTooltip(e);
+      }
+
+      function positionTooltip(e) {
+        const padding = 12;
+        const tooltipRect = tooltipEl.getBoundingClientRect();
+        let x = e.clientX + 16;
+        let y = e.clientY + 16;
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        if (x + tooltipRect.width + padding > vw) {
+          x = e.clientX - tooltipRect.width - 16;
+        }
+        if (y + tooltipRect.height + padding > vh) {
+          y = e.clientY - tooltipRect.height - 16;
+        }
+
+        tooltipEl.style.left = x + "px";
+        tooltipEl.style.top = y + "px";
+      }
+
+      function hideTooltip() {
+        tooltipEl.style.display = "none";
+      }
+
+      function wireRenseiHoverAndAddButtons(customGroups) {
+        const items = renseiView.querySelectorAll(".check-item");
+        items.forEach((li) => {
+          if (li._renseiHoverBound) return;
+          li._renseiHoverBound = true;
+
+          const cb = li.querySelector('input[data-book-id]');
+          const label = li.querySelector("label");
+          if (!cb || !label) return;
+          const bookId = cb.dataset.bookId;
+          const title = label.textContent.trim();
+
+          li.addEventListener("mouseenter", (e) => showTooltip(e, bookId, title));
+          li.addEventListener("mousemove", (e) => positionTooltip(e));
+          li.addEventListener("mouseleave", hideTooltip);
+
+          // Add "Add" button for custom canon
+          const addBtn = document.createElement("button");
+          addBtn.type = "button";
+          addBtn.className = "mini-btn";
+          addBtn.textContent = "Add";
+          addBtn.title = "Add to Custom Canon (first list)";
+          addBtn.addEventListener("click", () => {
+            addCustomItemFromRensei(bookId, title, customGroups);
+          });
+
+          li.appendChild(addBtn);
+        });
+      }
+
+      function addCustomItemFromRensei(bookId, title, customGroups) {
+        if (!customGroups.length) {
+          customGroups.push({
+            id: "my-list",
+            title: "My List",
+            type: "other",
+            items: []
+          });
+        }
+        const targetGroup = customGroups[0];
+        const existingIds = new Set();
+        customGroups.forEach((g) => g.items.forEach((it) => existingIds.add(it.id)));
+        existingIds.add(bookId);
+        const uniqueId = ensureUniqueId(bookId, existingIds);
+        targetGroup.items.push({ id: uniqueId, title: title });
+        saveCustomState(customGroups);
+        renderCustomGroups(customGroups, progressStateRef);
+        applyProgressToUI(progressStateRef);
+        updateProgressDisplay();
+      }
+
+      function attachGlobalListeners(progressState, customGroups) {
         // Reset button
         if (resetBtn) {
           resetBtn.addEventListener("click", () => {
@@ -913,96 +1259,159 @@
             if (view === "rensei") {
               renseiView.classList.add("active");
               customView.classList.remove("active");
+              toggleExpandedBtn.classList.remove("hidden");
             } else {
               customView.classList.add("active");
               renseiView.classList.remove("active");
+              toggleExpandedBtn.classList.add("hidden");
+              hideTooltip();
             }
           });
         });
 
-        // Add custom item
-        if (customAddBtn) {
-          customAddBtn.addEventListener("click", () => {
-            const title = (customTitleInput.value || "").trim();
-            let idInput = (customIdInput.value || "").trim();
+        // Expanded toggle
+        if (toggleExpandedBtn) {
+          toggleExpandedBtn.addEventListener("click", () => {
+            const isExpanded = document.body.classList.toggle("expanded-mode");
+            toggleExpandedBtn.classList.toggle("active", isExpanded);
+            const label = toggleExpandedBtn.querySelector(".label");
+            if (label) label.textContent = "Expanded view: " + (isExpanded ? "on" : "off");
+          });
+        }
+
+        // Add group
+        if (addGroupBtn) {
+          addGroupBtn.addEventListener("click", () => {
+            const title = (newGroupTitleInput.value || "").trim() || "Untitled List";
+            const type = newGroupTypeSelect.value || "other";
+            const idBase = "group-" + slugify(title);
+            const existingIds = new Set(customGroups.map((g) => g.id));
+            const groupId = ensureUniqueId(idBase, existingIds);
+            customGroups.push({
+              id: groupId,
+              title,
+              type,
+              items: []
+            });
+            saveCustomState(customGroups);
+            renderCustomGroups(customGroups, progressState);
+            applyProgressToUI(progressState);
+            updateProgressDisplay();
+            newGroupTitleInput.value = "";
+          });
+        }
+
+        // Custom groups delegation (rename/delete group, add/up/down/delete item)
+        customGroupsContainer.addEventListener("click", (evt) => {
+          const btn = evt.target.closest("button");
+          if (!btn) return;
+          const action = btn.dataset.action;
+          if (!action) return;
+
+          if (action === "rename-group" || action === "delete-group") {
+            const card = btn.closest(".custom-group");
+            if (!card) return;
+            const gIndex = parseInt(card.dataset.groupIndex || "-1", 10);
+            if (isNaN(gIndex) || gIndex < 0 || gIndex >= customGroups.length) return;
+
+            if (action === "rename-group") {
+              const currentTitle = customGroups[gIndex].title;
+              const newTitle = prompt("New title:", currentTitle);
+              if (newTitle && newTitle.trim()) {
+                customGroups[gIndex].title = newTitle.trim();
+                saveCustomState(customGroups);
+                renderCustomGroups(customGroups, progressState);
+                applyProgressToUI(progressState);
+                updateProgressDisplay();
+              }
+            } else if (action === "delete-group") {
+              if (!confirm("Delete this list and all its items?")) return;
+              customGroups.splice(gIndex, 1);
+              saveCustomState(customGroups);
+              renderCustomGroups(customGroups, progressState);
+              applyProgressToUI(progressState);
+              updateProgressDisplay();
+            }
+            return;
+          }
+
+          if (action === "add-item") {
+            const gIndex = parseInt(btn.dataset.groupIndex || "-1", 10);
+            if (isNaN(gIndex) || gIndex < 0 || gIndex >= customGroups.length) return;
+            const card = customGroupsContainer.querySelector('.custom-group[data-group-index="' + gIndex + '"]');
+            if (!card) return;
+            const titleInput = card.querySelector('input[data-role="item-title-input"]');
+            const idInput = card.querySelector('input[data-role="item-id-input"]');
+            const title = (titleInput && titleInput.value || "").trim();
+            let id = (idInput && idInput.value || "").trim();
 
             if (!title) {
               alert("Please enter a title.");
               return;
             }
 
-            const existingIds = new Set(customState.map((it) => it.id));
-            const progressIds = Object.keys(progressState);
-            progressIds.forEach((id) => existingIds.add(id));
+            const existingIds = new Set();
+            customGroups.forEach((g) => g.items.forEach((it) => existingIds.add(it.id)));
+            const baseId = id || ("custom-" + slugify(title));
+            const uniqueId = ensureUniqueId(baseId, existingIds);
 
-            let bookId;
-            if (idInput) {
-              bookId = ensureUniqueId(idInput, existingIds);
-            } else {
-              const base = "custom-" + slugify(title);
-              bookId = ensureUniqueId(base, existingIds);
-            }
-
-            customState.push({ id: bookId, title });
-            saveCustomState(customState);
-            renderCustomList(customState, progressState);
-            // If this ID already had progress (e.g., from Rensei list), apply it
+            customGroups[gIndex].items.push({ id: uniqueId, title });
+            saveCustomState(customGroups);
+            renderCustomGroups(customGroups, progressState);
             applyProgressToUI(progressState);
             updateProgressDisplay();
 
-            customTitleInput.value = "";
-            customIdInput.value = "";
-          });
-        }
+            if (titleInput) titleInput.value = "";
+            if (idInput) idInput.value = "";
+            return;
+          }
 
-        // Custom list actions: move up/down/delete (event delegation)
-        if (customListEl) {
-          customListEl.addEventListener("click", (evt) => {
-            const btn = evt.target.closest(".mini-btn");
-            if (!btn) return;
-            const action = btn.dataset.action;
-            const li = btn.closest(".check-item");
-            if (!li) return;
-            const index = parseInt(li.dataset.itemIndex || "-1", 10);
-            if (isNaN(index) || index < 0 || index >= customState.length) return;
+          // item-level actions
+          const li = btn.closest(".check-item");
+          if (!li) return;
+          const gIndex = parseInt(li.dataset.groupIndex || "-1", 10);
+          const iIndex = parseInt(li.dataset.itemIndex || "-1", 10);
+          if (isNaN(gIndex) || isNaN(iIndex) || gIndex < 0 || iIndex < 0 || gIndex >= customGroups.length || iIndex >= customGroups[gIndex].items.length) {
+            return;
+          }
 
-            if (action === "delete") {
-              if (!confirm("Remove this item from your custom canon?")) return;
-              customState.splice(index, 1);
-            } else if (action === "up") {
-              if (index > 0) {
-                const tmp = customState[index - 1];
-                customState[index - 1] = customState[index];
-                customState[index] = tmp;
-              }
-            } else if (action === "down") {
-              if (index < customState.length - 1) {
-                const tmp = customState[index + 1];
-                customState[index + 1] = customState[index];
-                customState[index] = tmp;
-              }
+          if (action === "delete-item") {
+            if (!confirm("Remove this item from the list?")) return;
+            customGroups[gIndex].items.splice(iIndex, 1);
+          } else if (action === "up-item") {
+            if (iIndex > 0) {
+              const tmp = customGroups[gIndex].items[iIndex - 1];
+              customGroups[gIndex].items[iIndex - 1] = customGroups[gIndex].items[iIndex];
+              customGroups[gIndex].items[iIndex] = tmp;
             }
+          } else if (action === "down-item") {
+            if (iIndex < customGroups[gIndex].items.length - 1) {
+              const tmp = customGroups[gIndex].items[iIndex + 1];
+              customGroups[gIndex].items[iIndex + 1] = customGroups[gIndex].items[iIndex];
+              customGroups[gIndex].items[iIndex] = tmp;
+            }
+          }
 
-            saveCustomState(customState);
-            renderCustomList(customState, progressState);
-            applyProgressToUI(progressState);
-            updateProgressDisplay();
-          });
-        }
+          saveCustomState(customGroups);
+          renderCustomGroups(customGroups, progressState);
+          applyProgressToUI(progressState);
+          updateProgressDisplay();
+        });
       }
 
       // Initial boot
-      const progressState = loadProgressState();
-      const customState = loadCustomState();
+      const progressStateRef = loadProgressState();
+      const customGroupsRef = loadCustomState();
 
-      // First render custom list
-      renderCustomList(customState, progressState);
+      // Render custom groups
+      renderCustomGroups(customGroupsRef, progressStateRef);
       // Apply progress to static checkboxes
-      applyProgressToUI(progressState);
+      applyProgressToUI(progressStateRef);
       // Attach listeners
-      attachCheckboxListeners(progressState);
-      attachGlobalListeners(progressState, customState);
+      attachCheckboxListeners(progressStateRef);
+      attachGlobalListeners(progressStateRef, customGroupsRef);
       updateProgressDisplay();
+      wireRenseiHoverAndAddButtons(customGroupsRef);
     })();
   </script>
 </body>
