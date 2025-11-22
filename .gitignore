@@ -1,0 +1,14 @@
+# Node modules (if you later add tooling)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+*.tmp
