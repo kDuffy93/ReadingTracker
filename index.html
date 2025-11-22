@@ -455,14 +455,28 @@
 
     .book-label span.id-chip {
       font-family: var(--font-mono);
-      font-size: 0.68rem;
-      padding: 1px 6px;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(99, 109, 165, 0.9);
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(99, 109, 165, 0.7);
       color: #cdd4ff;
-      background: rgba(15, 18, 36, 0.9);
-      margin-left: 4px;
+      background: rgba(20, 26, 54, 0.95);
+      margin-left: 6px;
       white-space: nowrap;
+      cursor: pointer;
+      opacity: 0.85;
+    }
+
+    .book-label span.id-chip:hover {
+      opacity: 1;
+      background: rgba(35, 80, 140, 0.95);
+      border-color: rgba(130, 180, 255, 0.9);
+    }
+
+    .book-label span.id-chip.copied {
+      background: rgba(125, 245, 178, 0.18);
+      border-color: rgba(125, 245, 178, 0.9);
+      color: var(--accent-strong);
     }
 
     .book-actions {
@@ -1496,9 +1510,7 @@
       label.textContent = book.title;
       label.dataset.bookId = book.id;
 
-      const idChip = document.createElement("span");
-      idChip.className = "id-chip";
-      idChip.textContent = book.id;
+      const idChip = createIdChip(book.id);
       label.appendChild(idChip);
 
       const actions = document.createElement("div");
@@ -1623,9 +1635,7 @@
       label.textContent = book.title;
       label.dataset.bookId = book.id;
 
-      const idChip = document.createElement("span");
-      idChip.className = "id-chip";
-      idChip.textContent = book.id;
+      const idChip = createIdChip(book.id);
       label.appendChild(idChip);
 
       const actions = document.createElement("div");
@@ -1863,9 +1873,7 @@
       label.textContent = title;
       label.dataset.bookId = bookId;
 
-      const idChip = document.createElement("span");
-      idChip.className = "id-chip";
-      idChip.textContent = bookId;
+      const idChip = createIdChip(bookId);
       label.appendChild(idChip);
 
       const actions = document.createElement("div");
@@ -2049,9 +2057,7 @@
       label.textContent = book.title;
       label.dataset.bookId = book.id;
 
-      const idChip = document.createElement("span");
-      idChip.className = "id-chip";
-      idChip.textContent = book.id;
+      const idChip = createIdChip(book.id);
       label.appendChild(idChip);
 
       const actions = document.createElement("div");
@@ -2148,6 +2154,52 @@
 
       tooltip.style.left = x + "px";
       tooltip.style.top = y + "px";
+    }
+
+    function copyIdToClipboard(id, chipEl) {
+      if (!id) return;
+      const markCopied = () => {
+        if (!chipEl) return;
+        chipEl.classList.add("copied");
+        setTimeout(() => chipEl.classList.remove("copied"), 700);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard
+          .writeText(id)
+          .then(markCopied)
+          .catch(() => {
+            fallbackCopyText(id);
+            markCopied();
+          });
+      } else {
+        fallbackCopyText(id);
+        markCopied();
+      }
+    }
+
+    function fallbackCopyText(text) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {}
+    }
+
+    function createIdChip(id) {
+      const chip = document.createElement("span");
+      chip.className = "id-chip";
+      chip.textContent = "(" + id + ")";
+      chip.title = "Click to copy ID";
+      chip.addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        copyIdToClipboard(id, chip);
+      });
+      return chip;
     }
 
     // --- Stats ---------------------------------------------------------------
