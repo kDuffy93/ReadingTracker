@@ -40,12 +40,12 @@
     }
 
     html {
-      font-size: clamp(14px, 1vw + 0.7rem, 18px);
+      font-size: clamp(14px, 1vw + 0.7rem, 19px);
     }
 
     .app-shell {
-      width: 85%;
-      max-width: 1400px;
+      width: 95%;
+      max-width: 1600px;
       margin: 24px auto 40px;
       padding: 0 16px;
     }
@@ -449,7 +449,8 @@
     }
 
     .book-label {
-      font-size: 0.84rem;
+      font-size: 0.94rem;
+      font-weight: 500;
       color: var(--text-main);
       cursor: default;
       flex: 1;
@@ -461,16 +462,16 @@
 
     .book-label span.id-chip {
       font-family: var(--font-mono);
-      font-size: 0.65rem;
-      padding: 2px 6px;
+      font-size: 0.62rem;
+      padding: 1px 6px;
       border-radius: 999px;
-      border: 1px solid rgba(99, 109, 165, 0.7);
+      border: 1px solid rgba(99, 109, 165, 0.6);
       color: #cdd4ff;
-      background: rgba(20, 26, 54, 0.95);
+      background: rgba(12, 17, 40, 0.95);
       margin-left: 6px;
       white-space: nowrap;
       cursor: pointer;
-      opacity: 0.85;
+      opacity: 0.8;
     }
 
     .book-label span.id-chip:hover {
@@ -480,7 +481,7 @@
     }
 
     .book-label span.id-chip.copied {
-      background: rgba(125, 245, 178, 0.18);
+      background: rgba(125, 245, 178, 0.22);
       border-color: rgba(125, 245, 178, 0.9);
       color: var(--accent-strong);
     }
@@ -581,8 +582,8 @@
       display: flex;
       flex-direction: column;
       gap: 3px;
-      max-height: 65vh;
-      overflow-y: auto;
+      max-height: none;
+      overflow: visible;
     }
 
     .rensei-col-body::-webkit-scrollbar {
@@ -804,7 +805,30 @@
         grid-template-columns: 1fr;
       }
     }
-  </style>
+  
+    .copy-toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(10, 180, 140, 0.15);
+      border: 1px solid rgba(125, 245, 178, 0.9);
+      color: #e8fff4;
+      font-size: 0.78rem;
+      box-shadow: 0 0 18px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+      z-index: 1200;
+    }
+
+    .copy-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+</style>
 </head>
 <body>
   <div class="app-shell">
@@ -1388,7 +1412,7 @@
 
     // --- Rensei grid (v4-style columns) -------------------------------------
 
-    function renderRenseiGrid(customIds) {
+        function renderRenseiGrid(customIds) {
       const grid = document.getElementById("renseiGrid");
       grid.innerHTML = "";
 
@@ -1404,9 +1428,21 @@
         "Tertiary path",
         "Edge, heavy, or experimental extensions.",
       );
+      const buddhistCol = buildRenseiColumn(
+        "Buddhist path",
+        "Canonical and adjacent Buddhist works.",
+      );
+      const japaneseCol = buildRenseiColumn(
+        "Japanese / aesthetics",
+        "Japanese thinkers, strategy, and aesthetic lenses.",
+      );
+      const thinkingCol = buildRenseiColumn(
+        "Deep thinkers / meta-cognition",
+        "Works focused on thinking about thinking.",
+      );
       const extrasCol = buildRenseiColumn(
-        "Extras: Buddhist / Japanese / Thinking",
-        "Any tier that lives in the Buddhist, Japanese, or thinking clusters.",
+        "Extras / wildcards",
+        "Anything that does not neatly fit the other buckets.",
       );
 
       const coreBooks = CANON_BOOKS.filter((b) => b.tier === "core").sort(
@@ -1419,13 +1455,30 @@
         (a, b) => a.order - b.order,
       );
 
-      const extrasBooks = CANON_BOOKS.filter((b) =>
-        ["buddhist", "japanese", "thinking"].includes(b.group),
+      const buddhistBooks = CANON_BOOKS.filter(
+        (b) => b.group === "buddhist",
+      ).sort((a, b) => a.order - b.order);
+      const japaneseBooks = CANON_BOOKS.filter(
+        (b) => b.group === "japanese",
+      ).sort((a, b) => a.order - b.order);
+      const thinkingBooks = CANON_BOOKS.filter(
+        (b) => b.group === "thinking",
+      ).sort((a, b) => a.order - b.order);
+
+      const extrasBooks = CANON_BOOKS.filter(
+        (b) =>
+          !["buddhist", "japanese", "thinking"].includes(b.group) &&
+          b.tier !== "core" &&
+          b.tier !== "secondary" &&
+          b.tier !== "tertiary",
       ).sort((a, b) => a.order - b.order);
 
       const coreBody = coreCol.querySelector(".rensei-col-body");
       const secBody = secondaryCol.querySelector(".rensei-col-body");
       const terBody = tertiaryCol.querySelector(".rensei-col-body");
+      const buddhistBody = buddhistCol.querySelector(".rensei-col-body");
+      const japaneseBody = japaneseCol.querySelector(".rensei-col-body");
+      const thinkingBody = thinkingCol.querySelector(".rensei-col-body");
       const extrasBody = extrasCol.querySelector(".rensei-col-body");
 
       if (coreBooks.length === 0) {
@@ -1455,6 +1508,33 @@
         });
       }
 
+      if (buddhistBooks.length === 0) {
+        buddhistBody.classList.add("empty");
+        buddhistBody.textContent = "— no entries —";
+      } else {
+        buddhistBooks.forEach((book) => {
+          buddhistBody.appendChild(buildRenseiItem(book, customIds));
+        });
+      }
+
+      if (japaneseBooks.length === 0) {
+        japaneseBody.classList.add("empty");
+        japaneseBody.textContent = "— no entries —";
+      } else {
+        japaneseBooks.forEach((book) => {
+          japaneseBody.appendChild(buildRenseiItem(book, customIds));
+        });
+      }
+
+      if (thinkingBooks.length === 0) {
+        thinkingBody.classList.add("empty");
+        thinkingBody.textContent = "— no entries —";
+      } else {
+        thinkingBooks.forEach((book) => {
+          thinkingBody.appendChild(buildRenseiItem(book, customIds));
+        });
+      }
+
       if (extrasBooks.length === 0) {
         extrasBody.classList.add("empty");
         extrasBody.textContent = "— nothing tagged as extra yet —";
@@ -1467,9 +1547,11 @@
       grid.appendChild(coreCol);
       grid.appendChild(secondaryCol);
       grid.appendChild(tertiaryCol);
+      grid.appendChild(buddhistCol);
+      grid.appendChild(japaneseCol);
+      grid.appendChild(thinkingCol);
       grid.appendChild(extrasCol);
     }
-
     function buildRenseiColumn(title, subtitle) {
       const col = document.createElement("section");
       col.className = "rensei-col";
@@ -2167,7 +2249,8 @@
       const markCopied = () => {
         if (!chipEl) return;
         chipEl.classList.add("copied");
-        setTimeout(() => chipEl.classList.remove("copied"), 700);
+        setTimeout(() => chipEl.classList.remove("copied"), 900);
+        showCopyToast(id);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard
@@ -2194,7 +2277,18 @@
         document.execCommand("copy");
         document.body.removeChild(ta);
       } catch {}
+        function showCopyToast(id) {
+      const toast = document.getElementById("copyToast");
+      if (!toast) return;
+      toast.textContent = "Copied ID: " + id;
+      toast.classList.add("show");
+      clearTimeout(window.__copyToastTimer);
+      window.__copyToastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1200);
     }
+
+}
 
     function createIdChip(id) {
       const chip = document.createElement("span");
@@ -2365,5 +2459,7 @@
       return set;
     }
   </script>
+
+  <div id="copyToast" class="copy-toast">Copied ID to clipboard</div>
 </body>
 </html>
