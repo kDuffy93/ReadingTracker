@@ -44,8 +44,8 @@
     }
 
     .app-shell {
-      width: 95%;
-      max-width: 1600px;
+      width: 87%;
+      max-width: 1500px;
       margin: 24px auto 40px;
       padding: 0 16px;
     }
@@ -606,9 +606,9 @@
 
     /* Custom canon */
     .custom-layout {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .custom-card {
@@ -828,6 +828,53 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    .scroll-toggle {
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      opacity: 0.7;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .scroll-toggle:hover {
+      opacity: 0.95;
+    }
+
+    .scroll-toggle-square {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(110, 125, 180, 0.9);
+      background: rgba(10, 16, 40, 0.9);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .scroll-toggle-square.on {
+      background: rgba(125, 245, 178, 0.25);
+      border-color: rgba(125, 245, 178, 0.9);
+    }
+
+    .scroll-toggle-label {
+      letter-spacing: 0.03em;
+    }
+
+    .a2hs-btn {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .a2hs-btn {
+        display: inline-flex;
+      }
+    }
 </style>
 </head>
 <body>
@@ -864,6 +911,9 @@
         <button id="clearProgressBtn" class="small-ghost danger" type="button">
           <span class="dot"></span> Reset all progress
         </button>
+        <button id="a2hsBtn" class="small-ghost a2hs-btn" type="button">
+          <span class="dot"></span> Add to home screen
+        </button>
       </div>
     </div>
 
@@ -877,7 +927,7 @@
           ></strong>
         <span>completed</span>
       </div>
-      <div class="pill-stat">
+      <div class="pill-stat" id="statRenseiPill">
         <span class="dot"></span>
         <span class="label">Rensei:</span>
         <strong><span id="statRenseiCompleted">0</span>/<span
@@ -885,7 +935,7 @@
             >0</span
           ></strong>
       </div>
-      <div class="pill-stat">
+      <div class="pill-stat" id="statCustomPill">
         <span class="dot"></span>
         <span class="label">Custom:</span>
         <strong><span id="statCustomCompleted">0</span>/<span
@@ -953,6 +1003,12 @@
               <input id="customGroupedToggle" type="checkbox" />
               <span>Show grouped view for custom</span>
             </label>
+            <button id="exportCanonBtn" class="small-ghost" type="button">
+              <span class="dot"></span> Export canon JSON
+            </button>
+            <button id="importCanonBtn" class="small-ghost" type="button">
+              <span class="dot"></span> Import canon JSON
+            </button>
             <button id="addListBtn" class="small-ghost" type="button">
               <span class="dot"></span> New list
             </button>
@@ -977,7 +1033,15 @@
       </section>
     </main>
 
-    <footer>
+    
+    <input
+      type="file"
+      id="importCanonInput"
+      accept="application/json"
+      style="display: none"
+    />
+
+<footer>
       <div>
         Rensei Canon Tracker v5-hybrid · MIT Licensed · Data lives in
         <code>localStorage</code> only.
@@ -1324,10 +1388,21 @@
       wireTabs();
       wireClearProgress();
       wireToggles();
+      wireA2HSButton();
       renderAll();
     });
 
-    function wireTabs() {
+        function wireA2HSButton() {
+      const btn = document.getElementById("a2hsBtn");
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        alert(
+          "To add this app to your home screen, use your browser menu and choose 'Add to Home screen' or 'Install app'.",
+        );
+      });
+    }
+
+function wireTabs() {
       const btns = document.querySelectorAll(".tab-btn");
       btns.forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -1349,6 +1424,13 @@
         active === "rensei" ? "" : "none";
       document.getElementById("tab-custom").style.display =
         active === "custom" ? "" : "none";
+
+      const renseiPill = document.getElementById("statRenseiPill");
+      const customPill = document.getElementById("statCustomPill");
+      if (renseiPill && customPill) {
+        renseiPill.style.display = active === "rensei" ? "inline-flex" : "none";
+        customPill.style.display = active === "custom" ? "inline-flex" : "none";
+      }
     }
 
     function wireClearProgress() {
@@ -1566,7 +1648,43 @@
 
       const body = document.createElement("div");
       body.className = "rensei-col-body";
+      body.dataset.scroll = "off";
       col.appendChild(body);
+
+      const toggleRow = document.createElement("div");
+      toggleRow.className = "scroll-toggle";
+      const square = document.createElement("div");
+      square.className = "scroll-toggle-square";
+      square.title = "Toggle scroll for this section";
+      const label = document.createElement("span");
+      label.className = "scroll-toggle-label";
+      label.textContent = "scroll";
+      toggleRow.appendChild(square);
+      toggleRow.appendChild(label);
+
+      const applyScrollState = (enable) => {
+        if (enable) {
+          body.style.maxHeight = "60vh";
+          body.style.overflowY = "auto";
+          body.dataset.scroll = "on";
+          square.classList.add("on");
+        } else {
+          body.style.maxHeight = "none";
+          body.style.overflowY = "visible";
+          body.dataset.scroll = "off";
+          square.classList.remove("on");
+        }
+      };
+
+      applyScrollState(false);
+
+      toggleRow.addEventListener("click", (evt) => {
+        evt.stopPropagation();
+        const enable = body.dataset.scroll !== "on";
+        applyScrollState(enable);
+      });
+
+      col.appendChild(toggleRow);
 
       return col;
     }
@@ -1918,16 +2036,37 @@
       });
 
       const addListBtn = document.getElementById("addListBtn");
-      addListBtn.onclick = () => {
-        const id =
-          "list-" +
-          Date.now().toString(36) +
-          "-" +
-          Math.random().toString(36).slice(2, 6);
-        customLists.push({ id, name: "New List", items: [] });
-        saveCustomLists();
-        renderCustomView();
-      };
+      if (addListBtn) {
+        addListBtn.onclick = () => {
+          const id =
+            "list-" +
+            Date.now().toString(36) +
+            "-" +
+            Math.random().toString(36).slice(2, 6);
+          customLists.push({ id, name: "New List", items: [] });
+          saveCustomLists();
+          renderCustomView();
+        };
+      }
+
+      const exportBtn = document.getElementById("exportCanonBtn");
+      if (exportBtn) {
+        exportBtn.onclick = () => {
+          exportCustomCanon();
+        };
+      }
+
+      const importBtn = document.getElementById("importCanonBtn");
+      const importInput = document.getElementById("importCanonInput");
+      if (importBtn && importInput) {
+        importBtn.onclick = () => {
+          importInput.click();
+        };
+        importInput.addEventListener("change", (e) => {
+          handleCanonImport(e.target.files);
+          importInput.value = "";
+        });
+      }
     }
 
     function buildCustomItem(list, itemData, itemIndex) {
@@ -2425,6 +2564,69 @@
       try {
         localStorage.setItem(CUSTOM_KEY, JSON.stringify(customLists));
       } catch {}
+    }
+
+    function exportCustomCanon() {
+      try {
+        const payload = {
+          version: 1,
+          type: "rensei-canon-custom",
+          lists: customLists,
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const stamp = new Date().toISOString().slice(0, 10);
+        a.download = "canon-custom-" + stamp + ".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error("Export failed", err);
+        alert("Could not export canon JSON.");
+      }
+    }
+
+    function handleCanonImport(fileList) {
+      if (!fileList || !fileList[0]) return;
+      const file = fileList[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          const lists = Array.isArray(data?.lists) ? data.lists : Array.isArray(data) ? data : null;
+          if (!lists) {
+            alert("Import file does not look like a canon export.");
+            return;
+          }
+          const existingIds = new Set(customLists.map((l) => l.id));
+          lists.forEach((lst, idx) => {
+            const baseId = (lst && lst.id) || "import-" + Date.now().toString(36) + "-" + idx;
+            let newId = baseId;
+            let counter = 1;
+            while (existingIds.has(newId)) {
+              newId = baseId + "-" + counter++;
+            }
+            existingIds.add(newId);
+            customLists.push({
+              id: newId,
+              name: lst && lst.name ? lst.name : "Imported " + (idx + 1),
+              items: Array.isArray(lst && lst.items) ? lst.items : [],
+            });
+          });
+          saveCustomLists();
+          renderCustomView();
+          updateStats && updateStats();
+        } catch (err) {
+          console.error("Import failed", err);
+          alert("Could not import canon JSON.");
+        }
+      };
+      reader.readAsText(file);
     }
 
     function autoBuildDefaultCustomItems() {
